@@ -1,14 +1,20 @@
 package com.thecurumo.qaf.data
 
 import androidx.room.Dao
-import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 
 @Dao
 interface VerseDao {
 
-    @Query("SELECT * FROM verse WHERE poem_id = :poemId ORDER BY vorder ASC")
-    suspend fun getVersesForPoem(poemId: Int): List<Verse>
+    @RawQuery
+    suspend fun getVersesForPoemRaw(query: SupportSQLiteQuery): List<VerseRaw>
 
-    @Query("SELECT * FROM verse WHERE poem_id = :poemId AND vorder IN (:orders) ORDER BY vorder ASC")
-    suspend fun getOpeningVerses(poemId: Int, orders: List<Int>): List<Verse>
+    suspend fun getVersesForPoem(poemId: Int): List<VerseRaw> {
+        val query = androidx.sqlite.db.SimpleSQLiteQuery(
+            "SELECT poem_id, vorder, position, text FROM verse WHERE poem_id = ? ORDER BY vorder ASC",
+            arrayOf(poemId)
+        )
+        return getVersesForPoemRaw(query)
+    }
 }

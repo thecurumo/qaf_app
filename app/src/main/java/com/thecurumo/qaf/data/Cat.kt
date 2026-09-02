@@ -7,9 +7,8 @@ import androidx.room.PrimaryKey
 data class Cat(
     @PrimaryKey
     val id: Int,
-    val poet_id: Int,
-    val text: String,
-    val parent_id: Int,
-    val url: String?,
-    val is_prose: Int
+    val poet_id: Int?,
+    val text: String?,
+    val parent_id: Int?,
+    val url: String?
 )

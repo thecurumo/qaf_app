@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class Poet(
     @PrimaryKey
     val id: Int,
-    val name: String,
-    val cat_id: Int,
+    val name: String?,
+    val cat_id: Int?,
     val description: String?,
     val century_id: Int?,
     val birth_year: Int?,

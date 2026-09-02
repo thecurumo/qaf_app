@@ -4,7 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Poet::class, Cat::class, Poem::class, Verse::class],
+    entities = [Poet::class, Cat::class, Poem::class],
     version = 1,
     exportSchema = false
 )
