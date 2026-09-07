@@ -1,0 +1,4367 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>قاف — آرشیو ادبیات پارسی</title>
+    <style>
+        /* ==========================================================================
+           00. TYPOGRAPHY & ARCHITECTURAL PALETTE (LIGHT & DARK THEMES)
+           ========================================================================== */
+        @font-face {
+            font-family: 'Arad';
+            src: url('./assets/fonts/arad.woff2') format('woff2');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            /* Palette - LIGHT MODE */
+            --vellum: #FBF9F3;       /* بوم اصلی - کاغذ استخوانی نفیس */
+            --chalk: #F4F2EB;        /* پاپیروس کارت‌ها */
+            --tab-active-bg: #EDE9DE;
+            --ink: #1C1C1C;          /* مرکب مشکی اصیل */
+            --gold: #BFA054;         /* طلای زعفرانی کهن */
+            --stone: #8A8D91;        /* سنگ/فولاد خاکستری */
+            --input-focus-bg: #FFFFFF;
+            --overlay-scrim: rgba(20, 19, 18, 0.65);
+
+            /* Texture Tuning - LIGHT MODE */
+            --grain-opacity: 0.65;
+            --grain-blend: multiply;
+
+            /* Metrics & Rhythms */
+            --font-fa: 'Arad', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace, sans-serif;
+            --topbar-h: 60px;
+            --touch-target: 44px;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        [data-theme="dark"] {
+            /* Palette - DARK MODE */
+            --vellum: #141312;       /* بوم زغالی عمیق */
+            --chalk: #1E1D1B;        /* پاپیروس شب */
+            --tab-active-bg: #141312;
+            --ink: #EAE6DB;          /* کرم استخوانی روشن */
+            --gold: #D4B465;         /* زعفرانی درخشان شب */
+            --stone: #8E8A83;        /* خطوط سنگی شب */
+            --input-focus-bg: #262422;
+            --overlay-scrim: rgba(0, 0, 0, 0.85);
+
+            /* Texture Tuning - DARK MODE */
+            --grain-opacity: 0.28;
+            --grain-blend: screen;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::selection { background-color: var(--gold); color: var(--vellum); }
+
+        mark {
+            background-color: rgba(191, 160, 84, 0.22);
+            color: inherit;
+            padding: 0 2px;
+        }
+
+        html { 
+            -webkit-text-size-adjust: 100%; 
+            background-color: var(--vellum); 
+        }
+
+        body {
+            background-color: var(--vellum);
+            font-family: var(--font-fa);
+            color: var(--ink);
+            min-height: 100vh;
+            line-height: 1.8;
+            overflow-x: hidden;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            position: relative;
+        }
+
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        img, svg { max-width: 100%; display: block; }
+        button, input, select, textarea { font-family: inherit; }
+
+        /* بافت کاغذی ارگانیک بر روی هر دو پوسته */
+        .paper-grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12  0 0 0 0 0.11  0 0 0 0 0.09  0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+            opacity: var(--grain-opacity);
+            mix-blend-mode: var(--grain-blend);
+            transition: opacity 0.3s ease;
+        }
+
+        /* ==========================================================================
+           01. UNIFIED SEAMLESS TOP BAR
+           ========================================================================== */
+        .app-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            width: 100%;
+            background-color: var(--vellum);
+            border-bottom: 1px solid rgba(138, 141, 145, 0.2);
+            transition: background-color 0.25s ease;
+        }
+
+        .app-topbar-inner {
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(var(--topbar-h) + var(--safe-top));
+            padding: var(--safe-top) 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-brand-lockup {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .topbar-brand-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .topbar-brand-rule {
+            width: 1.5px;
+            height: 16px;
+            background-color: var(--gold);
+            opacity: 0.9;
+        }
+
+        .topbar-brand-subtext {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--stone);
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        .topbar-actions-cluster {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: -8px;
+        }
+
+        .frameless-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: var(--ink);
+            cursor: pointer;
+            border-radius: 0;
+            transition: color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .frameless-action-btn svg {
+            color: var(--ink);
+            stroke-width: 1.75;
+        }
+
+        .frameless-action-btn:active {
+            opacity: 0.6;
+            transform: scale(0.92);
+        }
+
+        .frameless-action-btn.is-active svg {
+            color: var(--gold);
+        }
+
+        /* ==========================================================================
+           02. PAGE CONTAINER & SPA VIEW CONTROLLERS
+           ========================================================================== */
+        .page-container {
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 20px 16px calc(36px + var(--safe-bottom));
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+        }
+
+        .spa-view {
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .spa-view.active-view {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           03. ARCHIVAL SECTION HEADERS & GENERAL COMPONENTS
+           ========================================================================== */
+        .archival-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(138, 141, 145, 0.2);
+        }
+
+        .archival-header-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .archival-rhombus-icon {
+            width: 6px;
+            height: 6px;
+            background-color: var(--gold);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        .archival-section-header h1,
+        .archival-section-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -0.2px;
+        }
+
+        .archival-header-link {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gold);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 32px;
+            padding: 0 4px;
+            transition: opacity 0.15s ease;
+            cursor: pointer;
+        }
+
+        .archival-header-link:active { opacity: 0.6; }
+
+        /* General Flat Poem Card */
+        .poem-flat-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .poem-flat-card:hover,
+        .poem-flat-card:active {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .poem-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--stone);
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.3);
+            padding-bottom: 6px;
+        }
+
+        .poem-number-badge {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .poem-opening-couplet {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin: 10px 0;
+        }
+
+        .hemistich-line {
+            font-size: clamp(13.5px, 2vw, 15px);
+            font-weight: 400;
+            color: var(--ink);
+            line-height: 1.85;
+            text-align: right;
+        }
+
+        .poem-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 8px;
+            font-size: 11px;
+            color: var(--stone);
+        }
+
+        .poem-card-footer .poem-meta-text {
+            color: var(--stone);
+            font-weight: 400;
+        }
+
+        .poem-action-link {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+           04. SEARCH CONSOLE PLAQUES & INPUTS
+           ========================================================================== */
+        .search-console-plaque {
+            width: 100%;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2.5px solid var(--gold);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: background-color 0.25s ease, border-color 0.25s ease;
+        }
+
+        .console-main-search-box {
+            display: flex;
+            align-items: center;
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            padding: 0 14px;
+            height: 46px;
+            min-height: 46px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .console-main-search-box:focus-within {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 4px 16px rgba(191, 160, 84, 0.12);
+        }
+
+        .console-search-icon {
+            color: var(--gold);
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .console-main-input {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-fa);
+            font-size: 14px;
+            color: var(--ink);
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        .console-main-input::placeholder {
+            color: var(--stone);
+            font-weight: 300;
+        }
+
+        .console-filter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .filter-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-field-group label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--stone);
+        }
+
+        .archival-select {
+            width: 100%;
+            height: 44px;
+            min-height: 44px;
+            background-color: var(--vellum);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23BFA054' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 14px center;
+            border: 1px solid var(--stone);
+            color: var(--ink);
+            padding: 0 12px 0 34px;
+            font-size: 13px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 0;
+            transition: border-color 0.2s ease, background-color 0.25s ease;
+        }
+
+        .archival-select:focus {
+            border-color: var(--gold);
+            background-color: var(--input-focus-bg);
+        }
+
+        .console-action-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 14px;
+            margin-top: 2px;
+        }
+
+        .execute-search-btn {
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            color: var(--ink);
+            height: 42px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .execute-search-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: scale(0.98);
+        }
+
+        .reset-filter-btn {
+            background: transparent;
+            border: 1px solid rgba(138, 141, 145, 0.4);
+            color: var(--stone);
+            height: 42px;
+            font-size: 12.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .reset-filter-btn:active {
+            border-color: var(--stone);
+            background: var(--vellum);
+            transform: scale(0.98);
+        }
+
+        /* ==========================================================================
+           05. POETS & WORKS DIRECTORY GRIDS
+           ========================================================================== */
+        .poets-grid, .poets-directory-grid,
+        .works-grid, .works-directory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        /* Poet Card */
+        .poet-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 16px 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .poet-card:active { transform: scale(0.97); border-color: var(--gold); }
+
+        .poet-avatar {
+            width: 78px;
+            height: 102px;
+            background-color: var(--vellum);
+            border: 1.5px solid var(--gold);
+            outline: 3px solid var(--chalk);
+            outline-offset: -4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+            flex-shrink: 0;
+            font-size: 24px;
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .poet-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .poet-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .poet-dates {
+            font-size: 10.5px;
+            color: var(--ink);
+            opacity: 0.85;
+        }
+
+        .poet-origin {
+            font-size: 10.5px;
+            color: var(--stone);
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 6px;
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .poet-geo-meta {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 6px;
+            margin-top: 2px;
+            font-size: 10.5px;
+            color: var(--stone);
+        }
+
+        .geo-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            gap: 1px;
+        }
+
+        .geo-label {
+            font-size: 9px;
+            opacity: 0.75;
+        }
+
+        .geo-val {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .geo-divider {
+            width: 1px;
+            height: 14px;
+            background-color: rgba(138, 141, 145, 0.3);
+            flex-shrink: 0;
+        }
+
+        /* Work Card */
+        .work-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 118px;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .work-card:active { transform: scale(0.97); border-color: var(--gold); }
+
+        .work-title {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .work-poet {
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 400;
+        }
+
+        .work-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 8px;
+            margin-top: 10px;
+            font-size: 10.5px;
+            color: var(--stone);
+        }
+
+        .work-meta-val {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-results-box {
+            grid-column: 1 / -1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--chalk);
+            border: 1px dashed var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 32px 16px;
+            gap: 8px;
+        }
+
+        .empty-results-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .empty-results-desc {
+            font-size: 12px;
+            color: var(--stone);
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .load-more-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 6px;
+        }
+
+        .archival-load-more-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink);
+            background-color: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 10px 28px;
+            min-height: 42px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .archival-load-more-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: scale(0.97);
+        }
+
+        /* ==========================================================================
+           06. POET PROFILE & WORK PROFILE HEADERS
+           ========================================================================== */
+        .poet-identity-plaque, .work-identity-plaque {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 3px solid var(--gold);
+            padding: 18px 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .poet-identity-plaque {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .work-identity-plaque {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .poet-portrait-frame {
+            width: 86px;
+            height: 114px;
+            background-color: var(--vellum);
+            border: 1.5px solid var(--gold);
+            outline: 3px solid var(--chalk);
+            outline-offset: -4px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 26px;
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .poet-portrait-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .poet-identity-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .poet-name-header-row, .work-title-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .poet-grand-name, .work-grand-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .work-author-link {
+            font-size: 14px;
+            color: var(--gold);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .poet-icon-bookmark-btn, .work-icon-bookmark-btn {
+            background: transparent;
+            border: 1px solid var(--stone);
+            color: var(--stone);
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            border-radius: 0;
+        }
+
+        .poet-icon-bookmark-btn:active, .work-icon-bookmark-btn:active { transform: scale(0.92); }
+        .poet-icon-bookmark-btn.is-bookmarked, .work-icon-bookmark-btn.is-bookmarked {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(191, 160, 84, 0.08);
+        }
+
+        .poet-linear-metadata, .work-linear-metadata {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 10px;
+            margin-top: 2px;
+        }
+
+        .metadata-unit {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .metadata-label {
+            color: var(--stone);
+            font-size: 10.5px;
+            font-weight: 400;
+        }
+
+        .metadata-val {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .metadata-divider {
+            width: 1px;
+            height: 12px;
+            background-color: rgba(138, 141, 145, 0.4);
+        }
+
+        .biography-plaque, .archival-text-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 16px 18px;
+        }
+
+        .biography-prose, .archival-card-prose {
+            font-size: 13.5px;
+            font-weight: 300;
+            line-height: 2;
+            color: var(--ink);
+            text-align: justify;
+        }
+
+        .subsections-grid, .poet-works-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .subsection-card, .poet-work-item-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 94px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .subsection-card:active, .poet-work-item-card:active {
+            transform: scale(0.97);
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+        }
+
+        .subsection-title, .poet-work-item-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.3;
+        }
+
+        .subsection-footer, .poet-work-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 8px;
+            margin-top: 12px;
+            font-size: 11px;
+            color: var(--stone);
+        }
+
+        .subsection-footer span:last-child, .poet-work-item-footer span:last-child {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        /* In-Entity Dedicated Search */
+        .inwork-search-section, .inpoet-search-section {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2.5px solid var(--gold);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .inwork-search-box, .inpoet-search-box {
+            display: flex;
+            align-items: center;
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            padding: 0 14px;
+            height: 46px;
+            min-height: 46px;
+            width: 100%;
+        }
+
+        .inwork-search-box:focus-within, .inpoet-search-box:focus-within {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 4px 16px rgba(191, 160, 84, 0.12);
+        }
+
+        .inwork-search-box svg, .inpoet-search-box svg {
+            color: var(--gold);
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .inwork-search-input, .inpoet-search-input {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-fa);
+            font-size: 14px;
+            color: var(--ink);
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        .inwork-exec-btn, .inpoet-exec-btn {
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            color: var(--ink);
+            height: 42px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .inwork-exec-btn:active, .inpoet-exec-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: scale(0.98);
+        }
+
+        /* ==========================================================================
+           07. POEM READER STYLES & ZEN MODE
+           ========================================================================== */
+        .poem-header-plaque {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 3px solid var(--gold);
+            padding: 18px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .poem-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .poem-main-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .poem-sub-author-link {
+            font-size: 13px;
+            color: var(--gold);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .poem-header-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .poem-tool-btn {
+            background: transparent;
+            border: 1px solid var(--stone);
+            color: var(--stone);
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            border-radius: 0;
+        }
+
+        .poem-tool-btn:active { transform: scale(0.92); }
+        .poem-tool-btn.is-active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(191, 160, 84, 0.08);
+        }
+
+        .verses-canvas {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .verse-block {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .verse-block:hover, .verse-block:active {
+            border-color: var(--gold);
+            background-color: var(--input-focus-bg);
+        }
+
+        .verse-block.is-bookmarked {
+            border-right: 3px solid var(--gold);
+        }
+
+        .verse-meta-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--stone);
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.3);
+            padding-bottom: 6px;
+        }
+
+        .verse-number-badge {
+            font-family: var(--font-fa);
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .verse-micro-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .verse-action-link-btn {
+            background: transparent;
+            border: none;
+            color: var(--stone);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-family: var(--font-fa);
+            transition: color 0.15s ease;
+        }
+
+        .verse-action-link-btn:active, .verse-action-link-btn.is-active {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .verse-content-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .poem-pagination-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .poem-nav-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink);
+            transition: all 0.15s ease;
+            min-height: 48px;
+            cursor: pointer;
+        }
+
+        .poem-nav-card:active {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            color: var(--gold);
+            transform: scale(0.98);
+        }
+
+        .poem-nav-card.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            border-top-color: var(--stone);
+        }
+
+        /* ZEN MODE */
+        body.zen-active .app-topbar,
+        body.zen-active .poem-pagination-bar,
+        body.zen-active .verse-meta-bar,
+        body.zen-active .app-colophon-anchor {
+            display: none !important;
+        }
+
+        body.zen-active .page-container {
+            padding-top: calc(24px + var(--safe-top));
+        }
+
+        body.zen-active .poem-header-plaque {
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            padding: 0 0 16px 0;
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.35);
+            text-align: center;
+            justify-content: center;
+        }
+
+        body.zen-active .poem-header-actions {
+            display: none;
+        }
+
+        body.zen-active .verse-block {
+            background: transparent;
+            border: none;
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.25);
+            padding: 16px 0;
+        }
+
+        /* ==========================================================================
+           08. BOOKMARKS & HISTORY (PROFILE)
+           ========================================================================== */
+        .workspace-tabs-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            width: 100%;
+        }
+
+        .workspace-tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--stone);
+            padding: 10px 14px;
+            min-height: 44px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 0;
+        }
+
+        .workspace-tab-btn.active {
+            background: var(--tab-active-bg);
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .tab-panel {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tab-panel.active { display: flex; }
+
+        .categories-scroll-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .categories-scroll-row::-webkit-scrollbar { display: none; }
+
+        .collection-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 12px;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .collection-chip.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--tab-active-bg);
+            border-top: 2px solid var(--gold);
+        }
+
+        .create-list-action-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 36px;
+            padding: 0 12px;
+            background: transparent;
+            border: 1px dashed var(--gold);
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+
+        .create-list-action-chip:active { background: rgba(191, 160, 84, 0.08); }
+
+        .bookmarks-list-stream, .history-list-stream, .results-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-group-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .empty-state-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            padding: 28px 16px;
+            background: var(--chalk);
+            border: 1px dashed var(--stone);
+        }
+
+        .empty-state-box .empty-state-icon {
+            color: var(--stone);
+            opacity: 0.7;
+        }
+
+        .empty-state-box .empty-state-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .empty-state-box .empty-state-sub {
+            font-size: 12px;
+            color: var(--stone);
+            line-height: 1.7;
+        }
+
+        .empty-state-box .empty-state-action {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .bookmark-unit-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .bookmark-unit-card:active {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            transform: scale(0.98);
+        }
+
+        .bookmark-unit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--stone);
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.3);
+            padding-bottom: 6px;
+        }
+
+        .bookmark-type-badge {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .remove-bookmark-btn {
+            background: transparent;
+            border: none;
+            color: var(--stone);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 4px;
+        }
+
+        .remove-bookmark-btn:active { color: #C2410C; }
+
+        .bookmark-unit-title {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.4;
+        }
+
+        .bookmark-unit-sub {
+            font-size: 11.5px;
+            color: var(--stone);
+            margin-top: 2px;
+        }
+
+        .bookmark-unit-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 8px;
+            font-size: 11px;
+        }
+
+        .history-item-row {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-right: 3px solid var(--gold);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .history-item-row:active {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            transform: scale(0.98);
+        }
+
+        .history-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .history-poem-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-poem-meta {
+            font-size: 11px;
+            color: var(--stone);
+        }
+
+        .history-action-side {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .clear-history-chip {
+            background: transparent;
+            border: 1px solid rgba(138, 141, 145, 0.4);
+            color: var(--stone);
+            padding: 8px 14px;
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-radius: 0;
+            width: 100%;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .clear-history-chip:active {
+            border-color: #C2410C;
+            color: #C2410C;
+            background: var(--vellum);
+        }
+
+        .backup-minimal-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .backup-minimal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            color: var(--ink);
+            height: 40px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-radius: 0;
+            text-align: center;
+        }
+
+        .backup-minimal-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--vellum);
+            transform: scale(0.98);
+        }
+
+        /* ==========================================================================
+           09. CRYPTO DONATION CARDS (ABOUT PAGE)
+           ========================================================================== */
+        .crypto-wallets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .crypto-unit-card {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .crypto-unit-card:hover, .crypto-unit-card:active {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+        }
+
+        .crypto-unit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--stone);
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.3);
+            padding-bottom: 6px;
+        }
+
+        .crypto-network-badge {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .crypto-name-title {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .crypto-address-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            padding: 8px 12px;
+            gap: 10px;
+        }
+
+        .crypto-address-text {
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: ltr;
+            text-align: left;
+            user-select: all;
+        }
+
+        .crypto-copy-btn {
+            background: transparent;
+            border: none;
+            color: var(--gold);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            font-family: var(--font-fa);
+            flex-shrink: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .crypto-copy-btn:active { opacity: 0.6; }
+
+        /* ==========================================================================
+           10. VISUAL COLOPHON (لنگر پایانی حرف ق)
+           ========================================================================== */
+        .app-colophon-anchor {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 0 12px;
+            margin-top: 4px;
+            user-select: none;
+        }
+
+        .colophon-axis {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .colophon-line {
+            flex: 1;
+            height: 0.5px;
+            background-color: var(--stone);
+            opacity: 0.35;
+        }
+
+        .colophon-monogram {
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--gold);
+            line-height: 1;
+            opacity: 0.9;
+        }
+
+        /* ==========================================================================
+           11. FULL-SCREEN ARCHIVAL MENU & SEARCH OVERLAY
+           ========================================================================== */
+        .nav-drawer {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--vellum);
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.22s ease, visibility 0.22s ease;
+        }
+
+        .nav-drawer.is-open { visibility: visible; opacity: 1; }
+
+        .drawer-topbar {
+            width: 100%;
+            border-bottom: 1px solid rgba(138, 141, 145, 0.2);
+            flex-shrink: 0;
+        }
+
+        .drawer-topbar-inner {
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(var(--topbar-h) + var(--safe-top));
+            padding: var(--safe-top) 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .drawer-close-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: var(--ink);
+            cursor: pointer;
+            margin-left: -8px;
+        }
+
+        .drawer-body-scroll {
+            flex: 1;
+            overflow-y: auto;
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 16px calc(36px + var(--safe-bottom));
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .drawer-links-stack {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0;
+            border-bottom: 1px solid rgba(138, 141, 145, 0.2);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ink);
+            transition: background-color 0.15s ease, color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .drawer-nav-item:active {
+            background-color: var(--chalk);
+            color: var(--gold);
+        }
+
+        .drawer-nav-item.active {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .drawer-nav-item svg { color: var(--stone); }
+
+        .drawer-footer-block {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 36px;
+            padding-top: 16px;
+        }
+
+        .drawer-theme-btn {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            color: var(--ink);
+            padding: 11px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .drawer-theme-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: scale(0.98);
+        }
+
+        .drawer-theme-btn .sun-icon { display: none; }
+        .drawer-theme-btn .moon-icon { display: block; }
+        .drawer-theme-btn .theme-text-dark { display: none; }
+        .drawer-theme-btn .theme-text-light { display: inline; }
+
+        [data-theme="dark"] .drawer-theme-btn .sun-icon { display: block; }
+        [data-theme="dark"] .drawer-theme-btn .moon-icon { display: none; }
+        [data-theme="dark"] .drawer-theme-btn .theme-text-dark { display: inline; }
+        [data-theme="dark"] .drawer-theme-btn .theme-text-light { display: none; }
+
+        /* Search Overlay Sheet */
+        .search-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 105;
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .search-overlay.is-open { visibility: visible; opacity: 1; }
+
+        .search-overlay-scrim {
+            position: absolute;
+            inset: 0;
+            background: var(--overlay-scrim);
+        }
+
+        .search-overlay-sheet {
+            position: relative;
+            margin-top: auto;
+            margin-bottom: 0;
+            width: 100%;
+            background: var(--vellum);
+            border-top: 3px solid var(--gold);
+            padding: 24px 0 calc(28px + var(--safe-bottom));
+            max-height: 88vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .search-overlay.is-open .search-overlay-sheet { transform: translateY(0); }
+
+        .search-overlay-inner {
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sheet-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sheet-title {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .global-search-box {
+            display: flex;
+            align-items: center;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            padding: 0 14px;
+            height: 48px;
+            min-height: 48px;
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        .global-search-box:focus-within {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 4px 16px rgba(191, 160, 84, 0.12);
+        }
+
+        .global-search-box svg {
+            color: var(--gold);
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .global-search-input {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-fa);
+            font-size: 14.5px;
+            color: var(--ink);
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        .global-filter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .global-action-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 0.5px dotted var(--stone);
+            padding-top: 16px;
+        }
+
+        .global-exec-btn {
+            width: 100%;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            color: var(--ink);
+            height: 46px;
+            min-height: 46px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .global-exec-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .global-reset-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(138, 141, 145, 0.4);
+            color: var(--stone);
+            height: 42px;
+            min-height: 42px;
+            font-size: 12.5px;
+            cursor: pointer;
+        }
+
+        /* Modal: Create List */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-scrim);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-backdrop.open { display: flex; }
+
+        .modal-box {
+            background: var(--vellum);
+            border: 1px solid var(--stone);
+            border-top: 3px solid var(--gold);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+            max-width: 440px;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.4);
+            padding-bottom: 8px;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--stone);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-field-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--stone);
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            color: var(--ink);
+            padding: 10px 12px;
+            font-size: 13.5px;
+            outline: none;
+            border-radius: 0;
+            font-family: var(--font-fa);
+        }
+
+        .modal-input:focus {
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+        }
+
+        .modal-save-btn {
+            background: var(--chalk);
+            border: 1px solid var(--stone);
+            border-top: 2px solid var(--gold);
+            color: var(--ink);
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0;
+            width: 100%;
+        }
+
+        .modal-save-btn:active {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="paper-grain"></div>
+
+    <!-- ============================================================
+         01. UNIFIED SEAMLESS TOP BAR
+         ============================================================ -->
+    <header class="app-topbar">
+        <div class="app-topbar-inner">
+            <div class="topbar-brand-lockup" onclick="navigateTo('view-home')">
+                <span class="topbar-brand-title">قاف</span>
+                <div class="topbar-brand-rule"></div>
+                <span class="topbar-brand-subtext" id="topbarSubtext">آرشیو ادبیات پارسی</span>
+            </div>
+
+            <div class="topbar-actions-cluster">
+                <!-- سرچ گلوبال آرشیو -->
+                <button type="button" class="frameless-action-btn" id="searchToggleBtn" aria-label="جستجو" onclick="openGlobalSearch()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+
+                <!-- منو -->
+                <button type="button" class="frameless-action-btn" id="menuToggleBtn" aria-label="منو" onclick="openDrawer()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+         02. MAIN MULTI-VIEW PAGE CONTAINER
+         ============================================================ -->
+    <main class="page-container">
+
+        <!-- ========================================================
+             VIEW 1: HOME (صفحه نخست)
+             ======================================================== -->
+        <div id="view-home" class="spa-view active-view">
+            <!-- SECTION: RECENT READING (ادامه مطالعه) -->
+            <section class="recent-reading-section" id="recentReadingSection">
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>ادامه مطالعه</h2>
+                    </div>
+                    <a class="archival-header-link" onclick="navigateTo('view-profile', {tab: 'history'})">
+                        <span>تاریخچه</span>
+                        <span>←</span>
+                    </a>
+                </div>
+
+                <div id="recentReadingContent"></div>
+            </section>
+
+            <!-- SECTION: SELECTED POETS -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>سخنوران منتخب</h2>
+                    </div>
+                    <a class="archival-header-link" onclick="navigateTo('view-poets')">
+                        <span>مشاهده همه</span>
+                        <span>←</span>
+                    </a>
+                </div>
+
+                <div class="poets-grid">
+                    <!-- ۱. حافظ -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'حافظ شیرازی'})">
+                        <div class="poet-avatar">ح</div>
+                        <div class="poet-name">حافظ شیرازی</div>
+                        <div class="poet-dates">۷۲۶ — ۷۹۲ هـ.ق</div>
+                        <div class="poet-origin">شیراز</div>
+                    </div>
+
+                    <!-- ۲. سعدی -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'سعدی شیرازی'})">
+                        <div class="poet-avatar">س</div>
+                        <div class="poet-name">سعدی شیرازی</div>
+                        <div class="poet-dates">۶۱۵ — ۶۹۴ هـ.ق</div>
+                        <div class="poet-origin">شیراز</div>
+                    </div>
+
+                    <!-- ۳. مولانا -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'مولانا جلال‌الدین'})">
+                        <div class="poet-avatar">م</div>
+                        <div class="poet-name">مولانا جلال‌الدین</div>
+                        <div class="poet-dates">۶۰۴ — ۶۷۲ هـ.ق</div>
+                        <div class="poet-origin">بلخ</div>
+                    </div>
+
+                    <!-- ۴. فردوسی -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'ابوالقاسم فردوسی'})">
+                        <div class="poet-avatar">ف</div>
+                        <div class="poet-name">ابوالقاسم فردوسی</div>
+                        <div class="poet-dates">۳۲۹ — ۴۱۱ هـ.ق</div>
+                        <div class="poet-origin">طوس</div>
+                    </div>
+
+                    <!-- ۵. خیام -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'خیام نیشابوری'})">
+                        <div class="poet-avatar">خ</div>
+                        <div class="poet-name">خیام نیشابوری</div>
+                        <div class="poet-dates">۴۳۰ — ۵۱۷ هـ.ق</div>
+                        <div class="poet-origin">نیشابور</div>
+                    </div>
+
+                    <!-- ۶. عطار -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'عطار نیشابوری'})">
+                        <div class="poet-avatar">ع</div>
+                        <div class="poet-name">عطار نیشابوری</div>
+                        <div class="poet-dates">۵۴۰ — ۶۱۸ هـ.ق</div>
+                        <div class="poet-origin">نیشابور</div>
+                    </div>
+
+                    <!-- ۷. نظامی -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'نظامی گنجوی'})">
+                        <div class="poet-avatar">ن</div>
+                        <div class="poet-name">نظامی گنجوی</div>
+                        <div class="poet-dates">۵۳۵ — ۶۰۷ هـ.ق</div>
+                        <div class="poet-origin">گنجه</div>
+                    </div>
+
+                    <!-- ۸. صائب -->
+                    <div class="poet-card" onclick="navigateTo('view-poet-detail', {poet: 'صائب تبریزی'})">
+                        <div class="poet-avatar">ص</div>
+                        <div class="poet-name">صائب تبریزی</div>
+                        <div class="poet-dates">۱۰۰۰ — ۱۰۸۱ هـ.ق</div>
+                        <div class="poet-origin">تبریز</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: SELECTED WORKS -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>آثار و دیوان‌های منتخب</h2>
+                    </div>
+                    <a class="archival-header-link" onclick="navigateTo('view-works')">
+                        <span>مشاهده همه</span>
+                        <span>←</span>
+                    </a>
+                </div>
+
+                <div class="works-grid">
+                    <!-- ۱. دیوان حافظ -->
+                    <div class="work-card" onclick="navigateTo('view-work-flat')">
+                        <div>
+                            <div class="work-title">دیوان اشعار</div>
+                            <div class="work-poet">حافظ شیرازی</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>شیراز</span>
+                            <span>قرن ۸ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۲. بوستان سعدی -->
+                    <div class="work-card" onclick="navigateTo('view-work-hierarchical')">
+                        <div>
+                            <div class="work-title">بوستان</div>
+                            <div class="work-poet">سعدی شیرازی</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>شیراز</span>
+                            <span>قرن ۷ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۳. شاهنامه فردوسی -->
+                    <div class="work-card" onclick="navigateTo('view-work-hierarchical')">
+                        <div>
+                            <div class="work-title">شاهنامه</div>
+                            <div class="work-poet">ابوالقاسم فردوسی</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>طوس</span>
+                            <span>قرن ۴ و ۵ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۴. مثنوی معنوی -->
+                    <div class="work-card" onclick="navigateTo('view-work-hierarchical')">
+                        <div>
+                            <div class="work-title">مثنوی معنوی</div>
+                            <div class="work-poet">مولانا جلال‌الدین</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>بلخ</span>
+                            <span>قرن ۷ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۵. رباعیات خیام -->
+                    <div class="work-card" onclick="navigateTo('view-work-flat')">
+                        <div>
+                            <div class="work-title">رباعیات</div>
+                            <div class="work-poet">خیام نیشابوری</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>نیشابور</span>
+                            <span>قرن ۵ و ۶ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۶. منطق‌الطیر عطار -->
+                    <div class="work-card" onclick="navigateTo('view-work-hierarchical')">
+                        <div>
+                            <div class="work-title">منطق‌الطیر</div>
+                            <div class="work-poet">عطار نیشابوری</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>نیشابور</span>
+                            <span>قرن ۶ و ۷ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۷. کلیات شمس -->
+                    <div class="work-card" onclick="navigateTo('view-work-hierarchical')">
+                        <div>
+                            <div class="work-title">کلیات شمس</div>
+                            <div class="work-poet">مولانا جلال‌الدین</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>بلخ / قونیه</span>
+                            <span>قرن ۷ هـ.ق</span>
+                        </div>
+                    </div>
+
+                    <!-- ۸. دیوان صائب -->
+                    <div class="work-card" onclick="navigateTo('view-work-flat')">
+                        <div>
+                            <div class="work-title">دیوان صائب</div>
+                            <div class="work-poet">صائب تبریزی</div>
+                        </div>
+                        <div class="work-card-footer">
+                            <span>تبریز</span>
+                            <span>قرن ۱۱ هـ.ق</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 2: POETS DIRECTORY (دانشنامه سخنوران)
+             ======================================================== -->
+        <div id="view-poets" class="spa-view">
+            <div class="archival-section-header">
+                <div class="archival-header-title-wrap">
+                    <div class="archival-rhombus-icon"></div>
+                    <h1>دانشنامه سخنوران</h1>
+                </div>
+            </div>
+
+            <!-- INLINE SEARCH CONSOLE -->
+            <section class="search-console-plaque">
+                <div class="console-main-search-box">
+                    <svg class="console-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        class="console-main-input"
+                        placeholder="جستجوی نام سخنور..."
+                        id="poetSearchInput"
+                        oninput="filterPoetsLive()"
+                    >
+                </div>
+
+                <div class="console-filter-grid">
+                    <div class="filter-field-group">
+                        <label>دوره و قرن تاریخی:</label>
+                        <select class="archival-select" id="poetCenturyFilter" onchange="filterPoetsLive()">
+                            <option value="">همه قرون تاریخی</option>
+                            <option value="3">قرن ۳ هـ.ق</option>
+                            <option value="4">قرن ۴ هـ.ق</option>
+                            <option value="5">قرن ۵ هـ.ق</option>
+                            <option value="6">قرن ۶ هـ.ق</option>
+                            <option value="7">قرن ۷ هـ.ق</option>
+                            <option value="8">قرن ۸ هـ.ق</option>
+                            <option value="9">قرن ۹ هـ.ق</option>
+                            <option value="10">قرن ۱۰ هـ.ق</option>
+                            <option value="11">قرن ۱۱ هـ.ق</option>
+                            <option value="12">قرن ۱۲ هـ.ق</option>
+                            <option value="13">قرن ۱۳ هـ.ق</option>
+                            <option value="modern_other">دوره معاصر (هـ.ش)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>شهر زادگاه / منسوب:</label>
+                        <select class="archival-select" id="poetCityFilter" onchange="filterPoetsLive()">
+                            <option value="">همه شهرها</option>
+                            <option value="شیراز">شیراز</option>
+                            <option value="طوس">طوس / مشهد</option>
+                            <option value="نیشابور">نیشابور</option>
+                            <option value="بلخ">بلخ</option>
+                            <option value="تبریز">تبریز</option>
+                            <option value="اصفهان">اصفهان</option>
+                            <option value="سمرقند">سمرقند</option>
+                            <option value="هرات">هرات</option>
+                            <option value="گنجه">گنجه</option>
+                            <option value="غزنه">غزنه</option>
+                            <option value="دهلی">دهلی</option>
+                            <option value="تهران">تهران</option>
+                            <option value="همدان">همدان</option>
+                            <option value="یزد">یزد</option>
+                            <option value="مراغه">مراغه</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>مرتب‌سازی بر اساس:</label>
+                        <select class="archival-select" id="poetSortFilter" onchange="filterPoetsLive()">
+                            <option value="historical-asc">تقدم تاریخی (از کهن‌ترین)</option>
+                            <option value="historical-desc">تأخر تاریخی (از معاصرترین)</option>
+                            <option value="alphabetical">ترتیب الفبایی نام (الف — ی)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="console-action-bar">
+                    <button type="button" class="execute-search-btn" onclick="filterPoetsLive()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>جستجوی سخنوران</span>
+                    </button>
+                    <button type="button" class="reset-filter-btn" onclick="resetPoetDirectoryFilters()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                        <span>پاکسازی فیلترها</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- POETS GRID (2 COLUMNS) -->
+            <div class="poets-directory-grid" id="poetsGrid">
+                <!-- ۱. رودکی -->
+                <div class="poet-card" data-century="3" data-city="سمرقند" data-year="244" data-name="رودکی سمرقندی" onclick="navigateTo('view-poet-detail', {poet: 'رودکی سمرقندی'})">
+                    <div class="poet-avatar">ر</div>
+                    <div class="poet-name">رودکی سمرقندی</div>
+                    <div class="poet-dates">۲۴۴ — ۳۲۹ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">پنجکنت</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">رودک</span></div>
+                    </div>
+                </div>
+
+                <!-- ۲. فردوسی -->
+                <div class="poet-card" data-century="4" data-city="طوس" data-year="329" data-name="ابوالقاسم فردوسی" onclick="navigateTo('view-poet-detail', {poet: 'ابوالقاسم فردوسی'})">
+                    <div class="poet-avatar">ف</div>
+                    <div class="poet-name">ابوالقاسم فردوسی</div>
+                    <div class="poet-dates">۳۲۹ — ۴۱۱ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">طوس</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">طوس</span></div>
+                    </div>
+                </div>
+
+                <!-- ۳. خیام -->
+                <div class="poet-card" data-century="5" data-city="نیشابور" data-year="430" data-name="خیام نیشابوری" onclick="navigateTo('view-poet-detail', {poet: 'خیام نیشابوری'})">
+                    <div class="poet-avatar">خ</div>
+                    <div class="poet-name">خیام نیشابوری</div>
+                    <div class="poet-dates">۴۳۰ — ۵۱۷ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">نیشابور</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">نیشابور</span></div>
+                    </div>
+                </div>
+
+                <!-- ۴. باباطاهر -->
+                <div class="poet-card" data-century="5" data-city="همدان" data-year="450" data-name="باباطاهر عریان" onclick="navigateTo('view-poet-detail', {poet: 'باباطاهر عریان'})">
+                    <div class="poet-avatar">ب</div>
+                    <div class="poet-name">باباطاهر عریان</div>
+                    <div class="poet-dates">قرن ۵ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">همدان</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">همدان</span></div>
+                    </div>
+                </div>
+
+                <!-- ۵. سنایی -->
+                <div class="poet-card" data-century="5" data-city="غزنه" data-year="473" data-name="سنایی غزنوی" onclick="navigateTo('view-poet-detail', {poet: 'سنایی غزنوی'})">
+                    <div class="poet-avatar">س</div>
+                    <div class="poet-name">سنایی غزنوی</div>
+                    <div class="poet-dates">۴۷۳ — ۵۴۵ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">غزنه</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">غزنه</span></div>
+                    </div>
+                </div>
+
+                <!-- ۶. نظامی -->
+                <div class="poet-card" data-century="6" data-city="گنجه" data-year="535" data-name="نظامی گنجوی" onclick="navigateTo('view-poet-detail', {poet: 'نظامی گنجوی'})">
+                    <div class="poet-avatar">ن</div>
+                    <div class="poet-name">نظامی گنجوی</div>
+                    <div class="poet-dates">۵۳۵ — ۶۰۷ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">گنجه</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">گنجه</span></div>
+                    </div>
+                </div>
+
+                <!-- ۷. عطار -->
+                <div class="poet-card" data-century="6" data-city="نیشابور" data-year="540" data-name="عطار نیشابوری" onclick="navigateTo('view-poet-detail', {poet: 'عطار نیشابوری'})">
+                    <div class="poet-avatar">ع</div>
+                    <div class="poet-name">عطار نیشابوری</div>
+                    <div class="poet-dates">۵۴۰ — ۶۱۸ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">کدکن</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">نیشابور</span></div>
+                    </div>
+                </div>
+
+                <!-- ۸. مولانا -->
+                <div class="poet-card" data-century="7" data-city="بلخ" data-year="604" data-name="مولانا جلال‌الدین" onclick="navigateTo('view-poet-detail', {poet: 'مولانا جلال‌الدین'})">
+                    <div class="poet-avatar">م</div>
+                    <div class="poet-name">مولانا جلال‌الدین</div>
+                    <div class="poet-dates">۶۰۴ — ۶۷۲ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">بلخ</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">قونیه</span></div>
+                    </div>
+                </div>
+
+                <!-- ۹. سعدی -->
+                <div class="poet-card" data-century="7" data-city="شیراز" data-year="615" data-name="سعدی شیرازی" onclick="navigateTo('view-poet-detail', {poet: 'سعدی شیرازی'})">
+                    <div class="poet-avatar">س</div>
+                    <div class="poet-name">سعدی شیرازی</div>
+                    <div class="poet-dates">۶۱۵ — ۶۹۴ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">شیراز</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">شیراز</span></div>
+                    </div>
+                </div>
+
+                <!-- ۱۰. حافظ -->
+                <div class="poet-card" data-century="8" data-city="شیراز" data-year="726" data-name="حافظ شیرازی" onclick="navigateTo('view-poet-detail', {poet: 'حافظ شیرازی'})">
+                    <div class="poet-avatar">ح</div>
+                    <div class="poet-name">حافظ شیرازی</div>
+                    <div class="poet-dates">۷۲۶ — ۷۹۲ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">شیراز</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">شیراز</span></div>
+                    </div>
+                </div>
+
+                <!-- ۱۱. صائب تبریزی -->
+                <div class="poet-card" data-century="11" data-city="تبریز" data-year="1000" data-name="صائب تبریزی" onclick="navigateTo('view-poet-detail', {poet: 'صائب تبریزی'})">
+                    <div class="poet-avatar">ص</div>
+                    <div class="poet-name">صائب تبریزی</div>
+                    <div class="poet-dates">۱۰۰۰ — ۱۰۸۱ هـ.ق</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">تبریز</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">اصفهان</span></div>
+                    </div>
+                </div>
+
+                <!-- ۱۲. پروین اعتصامی -->
+                <div class="poet-card" data-century="modern_other" data-city="تبریز" data-year="1285" data-name="پروین اعتصامی" onclick="navigateTo('view-poet-detail', {poet: 'پروین اعتصامی'})">
+                    <div class="poet-avatar">پ</div>
+                    <div class="poet-name">پروین اعتصامی</div>
+                    <div class="poet-dates">۱۲۸۵ — ۱۳۲۰ هـ.ش</div>
+                    <div class="poet-geo-meta">
+                        <div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">تبریز</span></div>
+                        <div class="geo-divider"></div>
+                        <div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">قم</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-results-box" id="poetsEmptyBox">
+                <div class="empty-results-title">سخنوری با این مشخصات یافت نشد</div>
+                <div class="empty-results-desc">می‌توانید عبارت جستجو را تغییر دهید یا فیلترها را بازنشانی فرمایید.</div>
+            </div>
+        </div>
+
+        <!-- ========================================================
+             VIEW 3: POET DETAIL / PROFILE (شناسنامه سخنور)
+             ======================================================== -->
+        <div id="view-poet-detail" class="spa-view">
+            <!-- POET PLAQUE -->
+            <section class="poet-identity-plaque">
+                <div class="poet-portrait-frame">
+                    ح
+                </div>
+
+                <div class="poet-identity-details">
+                    <div class="poet-name-header-row">
+                        <h1 class="poet-grand-name" id="poetDetailName">حافظ شیرازی</h1>
+                        <button type="button" class="poet-icon-bookmark-btn" id="poetBookmarkBtn" aria-label="نشان کردن سخنور" onclick="togglePoetBookmark(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="poet-linear-metadata">
+                        <div class="metadata-unit"><span class="metadata-label">دوره:</span><span class="metadata-val">قرن ۸ هـ.ق</span></div>
+                        <div class="metadata-divider"></div>
+                        <div class="metadata-unit"><span class="metadata-label">گاه‌شمار:</span><span class="metadata-val">۷۲۶ — ۷۹۲ هـ.ق</span></div>
+                        <div class="metadata-divider"></div>
+                        <div class="metadata-unit"><span class="metadata-label">زادگاه:</span><span class="metadata-val">شیراز</span></div>
+                        <div class="metadata-divider"></div>
+                        <div class="metadata-unit"><span class="metadata-label">آرامگاه:</span><span class="metadata-val">شیراز</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BIOGRAPHY -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>زندگانی و شرح احوال</h2>
+                    </div>
+                </div>
+                <div class="biography-plaque">
+                    <p class="biography-prose">
+                        خواجه شمس‌الدین محمد بن بهاءالدین حافظ شیرازی، بزرگ‌ترین غزل‌سرای زبان و ادب پارسی است. او در سده هشتم هجری قمری در شهر شیراز زاده شد و در همان دیار به فراگیری علوم ادبی، دینی و حکمت پرداخت. دیوان اشعار او آیینه تمام‌نمای لطافت کلام، ایهام‌های نغز و پیوند عمیق میان معرفت، عرفان و نقد اجتماعی است که تا به امروز در تارک فرهنگ ایران می‌درخشد.
+                    </p>
+                </div>
+            </section>
+
+            <!-- WORKS OF THIS POET -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>آثار و دیوان‌های سخنور</h2>
+                    </div>
+                </div>
+                <div class="poet-works-grid">
+                    <div class="poet-work-item-card" onclick="navigateTo('view-work-flat')">
+                        <div class="poet-work-item-title">دیوان غزلیات</div>
+                        <div class="poet-work-item-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="poet-work-item-card" onclick="navigateTo('view-work-flat')">
+                        <div class="poet-work-item-title">قصاید و قطعات</div>
+                        <div class="poet-work-item-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="poet-work-item-card" onclick="navigateTo('view-work-flat')">
+                        <div class="poet-work-item-title">رباعیات</div>
+                        <div class="poet-work-item-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="poet-work-item-card" onclick="navigateTo('view-work-flat')">
+                        <div class="poet-work-item-title">ساقی‌نامه و مثنویات</div>
+                        <div class="poet-work-item-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FEATURED VERSES -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>گزیده اشعار و ابیات</h2>
+                    </div>
+                </div>
+                <div class="featured-verses-list">
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header">
+                            <span class="poem-number-badge">غزل شماره ۱</span>
+                        </div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">الا یا اَیها السّاقی اَدِر کأساً و ناوِلها</div>
+                            <div class="hemistich-line">که عشق آسان نمود اوّل ولی افتاد مشکل‌ها</div>
+                        </div>
+                        <div class="poem-card-footer">
+                            <span class="poem-meta-text">حافظ شیرازی • دیوان اشعار</span>
+                            <span class="poem-action-link">خوانش ←</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 4: WORKS DIRECTORY (گنجینه آثار و دیوان‌ها)
+             ======================================================== -->
+        <div id="view-works" class="spa-view">
+            <div class="archival-section-header">
+                <div class="archival-header-title-wrap">
+                    <div class="archival-rhombus-icon"></div>
+                    <h1>گنجینه آثار و دیوان‌ها</h1>
+                </div>
+            </div>
+
+            <!-- INLINE SEARCH CONSOLE -->
+            <section class="search-console-plaque">
+                <div class="console-main-search-box">
+                    <svg class="console-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        class="console-main-input"
+                        placeholder="جستجوی نام اثر..."
+                        id="workSearchInput"
+                        oninput="filterWorksLive()"
+                    >
+                </div>
+
+                <div class="console-filter-grid">
+                    <div class="filter-field-group">
+                        <label>سخنور / پدیدآور:</label>
+                        <select class="archival-select" id="workPoetFilter" onchange="filterWorksLive()">
+                            <option value="">همه سخنوران</option>
+                            <option value="حافظ">حافظ شیرازی</option>
+                            <option value="سعدی">سعدی شیرازی</option>
+                            <option value="فردوسی">ابوالقاسم فردوسی</option>
+                            <option value="مولانا">مولانا جلال‌الدین</option>
+                            <option value="خیام">خیام نیشابوری</option>
+                            <option value="عطار">عطار نیشابوری</option>
+                            <option value="نظامی">نظامی گنجوی</option>
+                            <option value="صائب">صائب تبریزی</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>دوره و قرن تاریخی:</label>
+                        <select class="archival-select" id="workCenturyFilter" onchange="filterWorksLive()">
+                            <option value="">همه قرون تاریخی</option>
+                            <option value="4">قرن ۴ هـ.ق</option>
+                            <option value="5">قرن ۵ هـ.ق</option>
+                            <option value="6">قرن ۶ هـ.ق</option>
+                            <option value="7">قرن ۷ هـ.ق</option>
+                            <option value="8">قرن ۸ هـ.ق</option>
+                            <option value="11">قرن ۱۱ هـ.ق</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>مرتب‌سازی بر اساس:</label>
+                        <select class="archival-select" id="workSortFilter" onchange="filterWorksLive()">
+                            <option value="historical-asc">تقدم تاریخی (از کهن‌ترین)</option>
+                            <option value="historical-desc">تأخر تاریخی (از معاصرترین)</option>
+                            <option value="alphabetical">ترتیب الفبایی عنوان اثر (الف — ی)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="console-action-bar">
+                    <button type="button" class="execute-search-btn" onclick="filterWorksLive()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>جستجوی آثار</span>
+                    </button>
+                    <button type="button" class="reset-filter-btn" onclick="resetWorkDirectoryFilters()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                        <span>پاکسازی فیلترها</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- WORKS ARCHIVE GRID -->
+            <div class="works-directory-grid" id="worksGrid">
+                <!-- ۱. شاهنامه -->
+                <div class="work-card" data-century="4" data-poet="فردوسی" data-year="400" data-title="شاهنامه" onclick="navigateTo('view-work-hierarchical')">
+                    <div>
+                        <h2 class="work-title">شاهنامه</h2>
+                        <span class="work-poet">ابوالقاسم فردوسی</span>
+                    </div>
+                    <div class="work-card-footer"><span>طوس</span><span class="work-meta-val">قرن ۴ و ۵ هـ.ق</span></div>
+                </div>
+
+                <!-- ۲. دیوان حافظ -->
+                <div class="work-card" data-century="8" data-poet="حافظ" data-year="790" data-title="دیوان اشعار" onclick="navigateTo('view-work-flat')">
+                    <div>
+                        <h2 class="work-title">دیوان اشعار</h2>
+                        <span class="work-poet">حافظ شیرازی</span>
+                    </div>
+                    <div class="work-card-footer"><span>شیراز</span><span class="work-meta-val">قرن ۸ هـ.ق</span></div>
+                </div>
+
+                <!-- ۳. بوستان سعدی -->
+                <div class="work-card" data-century="7" data-poet="سعدی" data-year="655" data-title="بوستان" onclick="navigateTo('view-work-hierarchical')">
+                    <div>
+                        <h2 class="work-title">بوستان</h2>
+                        <span class="work-poet">سعدی شیرازی</span>
+                    </div>
+                    <div class="work-card-footer"><span>شیراز</span><span class="work-meta-val">قرن ۷ هـ.ق</span></div>
+                </div>
+
+                <!-- ۴. مثنوی معنوی -->
+                <div class="work-card" data-century="7" data-poet="مولانا" data-year="670" data-title="مثنوی معنوی" onclick="navigateTo('view-work-hierarchical')">
+                    <div>
+                        <h2 class="work-title">مثنوی معنوی</h2>
+                        <span class="work-poet">مولانا جلال‌الدین</span>
+                    </div>
+                    <div class="work-card-footer"><span>بلخ / قونیه</span><span class="work-meta-val">قرن ۷ هـ.ق</span></div>
+                </div>
+
+                <!-- ۵. رباعیات خیام -->
+                <div class="work-card" data-century="5" data-poet="خیام" data-year="510" data-title="رباعیات" onclick="navigateTo('view-work-flat')">
+                    <div>
+                        <h2 class="work-title">رباعیات</h2>
+                        <span class="work-poet">خیام نیشابوری</span>
+                    </div>
+                    <div class="work-card-footer"><span>نیشابور</span><span class="work-meta-val">قرن ۵ و ۶ هـ.ق</span></div>
+                </div>
+
+                <!-- ۶. منطق‌الطیر عطار -->
+                <div class="work-card" data-century="6" data-poet="عطار" data-year="580" data-title="منطق‌الطیر" onclick="navigateTo('view-work-hierarchical')">
+                    <div>
+                        <h2 class="work-title">منطق‌الطیر</h2>
+                        <span class="work-poet">عطار نیشابوری</span>
+                    </div>
+                    <div class="work-card-footer"><span>نیشابور</span><span class="work-meta-val">قرن ۶ و ۷ هـ.ق</span></div>
+                </div>
+
+                <!-- ۷. دیوان صائب -->
+                <div class="work-card" data-century="11" data-poet="صائب" data-year="1080" data-title="دیوان صائب" onclick="navigateTo('view-work-flat')">
+                    <div>
+                        <h2 class="work-title">دیوان صائب</h2>
+                        <span class="work-poet">صائب تبریزی</span>
+                    </div>
+                    <div class="work-card-footer"><span>تبریز / اصفهان</span><span class="work-meta-val">قرن ۱۱ هـ.ق</span></div>
+                </div>
+            </div>
+
+            <div class="empty-results-box" id="worksEmptyBox">
+                <div class="empty-results-title">اثری با این مشخصات یافت نشد</div>
+                <div class="empty-results-desc">می‌توانید عنوان جستجو را تغییر دهید یا فیلترها را بازنشانی فرمایید.</div>
+            </div>
+        </div>
+
+        <!-- ========================================================
+             VIEW 5: HIERARCHICAL WORK (مثنوی معنوی - چند سطحی)
+             ======================================================== -->
+        <div id="view-work-hierarchical" class="spa-view">
+            <!-- WORK IDENTITY PLAQUE -->
+            <section class="work-identity-plaque">
+                <div class="work-title-header-row">
+                    <div class="work-main-title-group">
+                        <h1 class="work-grand-title">مثنوی معنوی</h1>
+                        <span class="work-author-link" onclick="navigateTo('view-poet-detail', {poet: 'مولانا جلال‌الدین'})">مولانا جلال‌الدین</span>
+                    </div>
+                    <button type="button" class="work-icon-bookmark-btn" id="workHierarchicalBookmarkBtn" aria-label="نشان کردن اثر" onclick="toggleWorkBookmark('مثنوی معنوی', this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="work-linear-metadata">
+                    <div class="metadata-unit"><span class="metadata-label">دوره:</span><span class="metadata-val">قرن ۷ هـ.ق</span></div>
+                    <div class="metadata-divider"></div>
+                    <div class="metadata-unit"><span class="metadata-label">حوزه خلق:</span><span class="metadata-val">بلخ / قونیه</span></div>
+                </div>
+            </section>
+
+            <!-- SUBSECTIONS DIRECTORY GRID -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>بخش‌ها و دفاتر اثر</h2>
+                    </div>
+                </div>
+                <div class="subsections-grid">
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر اول</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر دوم</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر سوم</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر چهارم</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر پنجم</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                    <div class="subsection-card" onclick="navigateTo('view-work-flat')">
+                        <div class="subsection-title">دفتر ششم</div>
+                        <div class="subsection-footer"><span>مشاهده اثر</span><span>←</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FEATURED VERSES LIST -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>گزیده ابیات و حکایات</h2>
+                    </div>
+                </div>
+                <div class="featured-verses-list">
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header"><span class="poem-number-badge">حکایت اول • نی‌نامه</span></div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">بشنو این نی چون حکایت می‌کند</div>
+                            <div class="hemistich-line">از جدایی‌ها شکایت می‌کند</div>
+                        </div>
+                        <div class="poem-card-footer">
+                            <span class="poem-meta-text">مولانا جلال‌الدین • مثنوی معنوی (دفتر اول)</span>
+                            <span class="poem-action-link">خوانش ←</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 6: FLAT WORK (دیوان اشعار حافظ - فهرست غزل‌ها)
+             ======================================================== -->
+        <div id="view-work-flat" class="spa-view">
+            <!-- WORK IDENTITY PLAQUE -->
+            <section class="work-identity-plaque">
+                <div class="work-title-header-row">
+                    <div class="work-main-title-group">
+                        <h1 class="work-grand-title">دیوان اشعار</h1>
+                        <span class="work-author-link" onclick="navigateTo('view-poet-detail', {poet: 'حافظ شیرازی'})">حافظ شیرازی</span>
+                    </div>
+                    <button type="button" class="work-icon-bookmark-btn" id="workFlatBookmarkBtn" aria-label="نشان کردن اثر" onclick="toggleWorkBookmark('دیوان اشعار حافظ', this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="work-linear-metadata">
+                    <div class="metadata-unit"><span class="metadata-label">دوره:</span><span class="metadata-val">قرن ۸ هـ.ق</span></div>
+                    <div class="metadata-divider"></div>
+                    <div class="metadata-unit"><span class="metadata-label">حوزه خلق:</span><span class="metadata-val">شیراز</span></div>
+                </div>
+            </section>
+
+            <!-- IN-WORK SEARCH CONSOLE -->
+            <section class="inwork-search-section">
+                <div class="inwork-search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="flatSearchInput" 
+                        class="inwork-search-input" 
+                        placeholder="جستجو در ابیات این اثر..."
+                        oninput="filterFlatPoemsLive()"
+                    >
+                </div>
+            </section>
+
+            <!-- POEMS DIRECTORY LIST -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>فهرست اشعار و غزلیات</h2>
+                    </div>
+                </div>
+
+                <div class="poems-flat-list" id="flatPoemsList">
+                    <!-- غزل ۱ -->
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header"><span class="poem-number-badge">غزل شماره ۱</span></div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">الا یا اَیها السّاقی اَدِر کأساً و ناوِلها</div>
+                            <div class="hemistich-line">که عشق آسان نمود اوّل ولی افتاد مشکل‌ها</div>
+                        </div>
+                        <div class="poem-card-footer"><span class="poem-meta-text">حافظ شیرازی • دیوان اشعار</span><span class="poem-action-link">خوانش ←</span></div>
+                    </div>
+
+                    <!-- غزل ۲ -->
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header"><span class="poem-number-badge">غزل شماره ۲</span></div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">صلاحِ کار کجا و منِ خراب کجا</div>
+                            <div class="hemistich-line">ببین تفاوتِ ره کز کجاست تا به کجا</div>
+                        </div>
+                        <div class="poem-card-footer"><span class="poem-meta-text">حافظ شیرازی • دیوان اشعار</span><span class="poem-action-link">خوانش ←</span></div>
+                    </div>
+
+                    <!-- غزل ۳ -->
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header"><span class="poem-number-badge">غزل شماره ۳</span></div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">اگر آن تُرکِ شیرازی به دست آرد دل ما را</div>
+                            <div class="hemistich-line">به خالِ هِندویَش بخشم سمرقند و بخارا را</div>
+                        </div>
+                        <div class="poem-card-footer"><span class="poem-meta-text">حافظ شیرازی • دیوان اشعار</span><span class="poem-action-link">خوانش ←</span></div>
+                    </div>
+
+                    <!-- غزل ۳۱۷ -->
+                    <div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                        <div class="poem-card-header"><span class="poem-number-badge">غزل شماره ۳۱۷</span></div>
+                        <div class="poem-opening-couplet">
+                            <div class="hemistich-line">فاش می‌گویم و از گفتهٔ خود دلشادم</div>
+                            <div class="hemistich-line">بندهٔ عشقم و از هر دو جهان آزادم</div>
+                        </div>
+                        <div class="poem-card-footer"><span class="poem-meta-text">حافظ شیرازی • دیوان اشعار</span><span class="poem-action-link">خوانش ←</span></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 7: POEM READER (خوانش شعر و غزل)
+             ======================================================== -->
+        <div id="view-poem-reader" class="spa-view">
+            <!-- HEADER PLAQUE -->
+            <header class="poem-header-plaque">
+                <div class="poem-header-info">
+                    <h1 class="poem-main-title" id="poemMainHeading">غزل شماره ۱</h1>
+                    <span class="poem-sub-author-link" onclick="navigateTo('view-poet-detail', {poet: 'حافظ شیرازی'})">حافظ شیرازی • دیوان اشعار</span>
+                </div>
+
+                <div class="poem-header-actions">
+                    <!-- کپی کل شعر -->
+                    <button type="button" class="poem-tool-btn" aria-label="کپی متن شعر" onclick="copyFullPoem(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+
+                    <!-- حالت تمرکز (Zen Mode) -->
+                    <button type="button" class="poem-tool-btn" id="zenToggleBtn" aria-label="حالت تمرکز" onclick="toggleZenMode(true)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M15 3h6v6"></path>
+                            <path d="M9 21H3v-6"></path>
+                            <path d="M21 3l-7 7"></path>
+                            <path d="M3 21l7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- نشان کردن کل شعر -->
+                    <button type="button" class="poem-tool-btn" id="poemBookmarkBtn" aria-label="نشان کردن شعر" onclick="togglePoemBookmark(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- VERSES CANVAS -->
+            <section class="verses-canvas" id="versesContainer">
+                <!-- بیت ۱ -->
+                <article class="verse-block" data-verse-id="1">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۱</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 1)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">الا یا اَیها السّاقی اَدِر کأساً و ناوِلها</div>
+                        <div class="hemistich-line">که عشق آسان نمود اوّل ولی افتاد مشکل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۲ -->
+                <article class="verse-block" data-verse-id="2">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۲</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 2)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">به بویِ نافه‌ای کآخر صبا زان طُرّه بگشاید</div>
+                        <div class="hemistich-line">ز تابِ جَعدِ مشکینش چه خون افتاد در دل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۳ -->
+                <article class="verse-block" data-verse-id="3">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۳</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 3)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">به می سجاده رنگین کن گرت پیرِ مغان گوید</div>
+                        <div class="hemistich-line">که سالک بی‌خبر نبود ز راه و رسمِ منزل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۴ -->
+                <article class="verse-block" data-verse-id="4">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۴</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 4)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">مرا در منزلِ جانان چه امنِ عیش چون هر دم</div>
+                        <div class="hemistich-line">جرس فریاد می‌دارد که بربندید محمل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۵ -->
+                <article class="verse-block" data-verse-id="5">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۵</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 5)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">شبِ تاریک و بیمِ موج و گردابی چنین هایل</div>
+                        <div class="hemistich-line">کجا دانند حالِ ما سبکبارانِ ساحل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۶ -->
+                <article class="verse-block" data-verse-id="6">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۶</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 6)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">همه کارم ز خودکامی به بدنامی کشید آخر</div>
+                        <div class="hemistich-line">نهان کی ماند آن رازی کز او سازند محفل‌ها</div>
+                    </div>
+                </article>
+
+                <!-- بیت ۷ -->
+                <article class="verse-block" data-verse-id="7">
+                    <div class="verse-meta-bar">
+                        <span class="verse-number-badge">بیت ۷</span>
+                        <div class="verse-micro-actions">
+                            <button type="button" class="verse-action-link-btn" onclick="toggleVerseBookmark(this, 7)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                <span>نشان</span>
+                            </button>
+                            <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>کپی</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="verse-content-layout">
+                        <div class="hemistich-line">حضوری گر همی‌خواهی از او غایب مشو حافظ</div>
+                        <div class="hemistich-line">مَتیٰ ما تَلقَ مَن تَهویٰ دَعِ الدُّنیا و اَهمِلها</div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- PAGINATION -->
+            <section class="poem-pagination-bar">
+                <div class="poem-nav-card disabled">
+                    <span>→ شعر قبلی</span>
+                    <span style="font-size: 10.5px; opacity: 0.6;">(سرآغاز دیوان)</span>
+                </div>
+                <div class="poem-nav-card" onclick="alert('انتقال به غزل شماره ۲')">
+                    <span>غزل شماره ۲</span>
+                    <span>شعر بعدی ←</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 8: SEARCH RESULTS (نتایج جستجو)
+             ======================================================== -->
+        <div id="view-search" class="spa-view">
+            <div class="archival-section-header">
+                <div class="archival-header-title-wrap">
+                    <div class="archival-rhombus-icon"></div>
+                    <h1>نتایج جستجو</h1>
+                </div>
+            </div>
+
+            <section class="search-console-plaque">
+                <div class="console-main-search-box">
+                    <svg class="console-search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        class="console-main-input"
+                        value="عشق"
+                        placeholder="جستجو در آرشیو ادبیات پارسی..."
+                        id="searchResultsInput"
+                        oninput="performLiveFilter()"
+                    >
+                </div>
+
+                <div class="console-filter-grid">
+                    <div class="filter-field-group">
+                        <label>قلمرو جستجو:</label>
+                        <select class="archival-select" id="scopeSelect" onchange="performLiveFilter()">
+                            <option value="all">کل آرشیو</option>
+                            <option value="poets">سخنوران</option>
+                            <option value="works">آثار و دیوان‌ها</option>
+                            <option value="verses">ابیات و اشعار</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>انتخاب سخنور:</label>
+                        <select class="archival-select" id="poetSelect" onchange="performLiveFilter()">
+                            <option value="">همه سخنوران</option>
+                            <option value="حافظ">حافظ شیرازی</option>
+                            <option value="سعدی">سعدی شیرازی</option>
+                            <option value="مولانا">مولانا جلال‌الدین</option>
+                            <option value="فردوسی">ابوالقاسم فردوسی</option>
+                            <option value="خیام">خیام نیشابوری</option>
+                            <option value="عطار">عطار نیشابوری</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>دوره و قرن تاریخی:</label>
+                        <select class="archival-select" id="centurySelect" onchange="performLiveFilter()">
+                            <option value="">همه قرون تاریخی</option>
+                            <option value="4">قرن ۴ هـ.ق</option>
+                            <option value="5">قرن ۵ هـ.ق</option>
+                            <option value="6">قرن ۶ هـ.ق</option>
+                            <option value="7">قرن ۷ هـ.ق</option>
+                            <option value="8">قرن ۸ هـ.ق</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="console-action-bar">
+                    <button type="button" class="execute-search-btn" onclick="performLiveFilter()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>به‌روزرسانی نتایج</span>
+                    </button>
+                    <button type="button" class="reset-filter-btn" onclick="resetSearchPageFilters()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                        <span>پاکسازی فیلترها</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RESULTS SECTIONS -->
+            <div class="results-stream-container" id="resultsStream" style="display:flex; flex-direction:column; gap:24px;">
+                <!-- SECTION 1: POETS -->
+                <section class="result-group-section" id="poetsResultSection" data-category-group="poets">
+                    <div class="archival-section-header">
+                        <div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>سخنوران مرتبط</h2></div>
+                    </div>
+                    <div class="results-cards-list" id="poetsGridResults">
+                        <div class="bookmark-unit-card" data-name="عطار نیشابوری" data-century="6" onclick="navigateTo('view-poet-detail', {poet: 'عطار نیشابوری'})">
+                            <div class="bookmark-unit-header"><span class="bookmark-type-badge">سخنور</span></div>
+                            <div><div class="bookmark-unit-title">عطار نیشابوری</div><div class="bookmark-unit-sub">قرن ۶ هـ.ق — نیشابور</div></div>
+                            <div class="bookmark-unit-footer"><span class="bookmark-action-link">مشاهده ←</span></div>
+                        </div>
+                        <div class="bookmark-unit-card" data-name="حافظ شیرازی" data-century="8" onclick="navigateTo('view-poet-detail', {poet: 'حافظ شیرازی'})">
+                            <div class="bookmark-unit-header"><span class="bookmark-type-badge">سخنور</span></div>
+                            <div><div class="bookmark-unit-title">حافظ شیرازی</div><div class="bookmark-unit-sub">قرن ۸ هـ.ق — شیراز</div></div>
+                            <div class="bookmark-unit-footer"><span class="bookmark-action-link">مشاهده ←</span></div>
+                        </div>
+                    </div>
+                    <div class="empty-results-box" id="poetsEmptyMsg" style="display:none; padding:16px;">موردی در بخش سخنوران یافت نشد.</div>
+                </section>
+
+                <!-- SECTION 2: WORKS -->
+                <section class="result-group-section" id="worksResultSection" data-category-group="works">
+                    <div class="archival-section-header">
+                        <div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>آثار و دیوان‌های مرتبط</h2></div>
+                    </div>
+                    <div class="results-cards-list" id="worksGridResults">
+                        <div class="bookmark-unit-card" data-work-title="دیوان اشعار" data-poet="حافظ" data-century="8" onclick="navigateTo('view-work-flat')">
+                            <div class="bookmark-unit-header"><span class="bookmark-type-badge">اثر</span></div>
+                            <div><div class="bookmark-unit-title">دیوان اشعار</div><div class="bookmark-unit-sub">حافظ شیرازی • قرن ۸ هـ.ق</div></div>
+                            <div class="bookmark-unit-footer"><span class="bookmark-action-link">مطالعه ←</span></div>
+                        </div>
+                    </div>
+                    <div class="empty-results-box" id="worksEmptyMsg" style="display:none; padding:16px;">موردی در بخش آثار و دیوان‌ها یافت نشد.</div>
+                </section>
+
+                <!-- SECTION 3: VERSES -->
+                <section class="result-group-section" id="versesResultSection" data-category-group="verses">
+                    <div class="archival-section-header">
+                        <div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>ابیات و مصراع‌های یافته‌شده</h2></div>
+                    </div>
+                    <div class="results-cards-list" id="versesGridResults">
+                        <div class="bookmark-unit-card" data-poet="حافظ" data-century="8" onclick="navigateTo('view-poem-reader')">
+                            <div class="bookmark-unit-header"><span class="bookmark-type-badge">تک‌بیت</span></div>
+                            <div>
+                                <div class="bookmark-unit-title" style="font-weight: 400; font-size: 13.5px; line-height: 1.85;">
+                                    «الا یا ایها الساقی ادر کأساً و ناولها<br>که <mark>عشق</mark> آسان نمود اول ولی افتاد مشکل‌ها»
+                                </div>
+                                <div class="bookmark-unit-sub">حافظ شیرازی | دیوان اشعار</div>
+                            </div>
+                            <div class="bookmark-unit-footer"><span class="bookmark-action-link">خوانش ←</span></div>
+                        </div>
+                    </div>
+                    <div class="empty-results-box" id="versesEmptyMsg" style="display:none; padding:16px;">موردی در بخش ابیات یافت نشد.</div>
+                </section>
+            </div>
+        </div>
+
+        <!-- ========================================================
+             VIEW 9: PROFILE / BOOKMARKS & HISTORY (بایگانی و نشان‌ها)
+             ======================================================== -->
+        <div id="view-profile" class="spa-view">
+            <div class="archival-section-header">
+                <div class="archival-header-title-wrap">
+                    <div class="archival-rhombus-icon"></div>
+                    <h1>بایگانی و نشان‌ها</h1>
+                </div>
+            </div>
+
+            <!-- 2-SEGMENTED TABS -->
+            <nav class="workspace-tabs-bar">
+                <button type="button" class="workspace-tab-btn active" onclick="switchMainTab('bookmarks', this)">
+                    <span>نشان‌ها</span>
+                </button>
+                <button type="button" class="workspace-tab-btn" onclick="switchMainTab('history', this)">
+                    <span>تاریخچه خوانش</span>
+                </button>
+            </nav>
+
+            <!-- TAB 1: BOOKMARKS -->
+            <section class="tab-panel active" id="tabPanelBookmarks">
+                <div class="categories-scroll-row" id="categoriesScrollRow">
+                    <button type="button" class="collection-chip active" onclick="filterByCollection('all', this)">
+                        <span>همه نشان‌ها</span>
+                    </button>
+                    <button type="button" class="collection-chip" onclick="filterByCollection('epic', this)">
+                        <span>شاهکارهای حماسی</span>
+                    </button>
+                    <button type="button" class="collection-chip" onclick="filterByCollection('mystic', this)">
+                        <span>غزلیات شورانگیز</span>
+                    </button>
+                    <button type="button" class="create-list-action-chip" onclick="openCreateListModal()">
+                        <span>+ لیست تازه</span>
+                    </button>
+                </div>
+
+                <div class="bookmarks-list-stream" id="bookmarksUnitsList"></div>
+
+                <!-- پشتیبان‌گیری مینیمال -->
+                <div class="backup-minimal-row">
+                    <button type="button" class="backup-minimal-btn" onclick="exportDataBackup()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>دریافت پشتیبان (JSON)</span>
+                    </button>
+
+                    <label class="backup-minimal-btn" style="cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>بازیابی پشتیبان</span>
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importDataBackup(event)">
+                    </label>
+                </div>
+            </section>
+
+            <!-- TAB 2: READING HISTORY -->
+            <section class="tab-panel" id="tabPanelHistory">
+                <div class="history-list-stream" id="historyListStream"></div>
+
+                <button type="button" class="clear-history-chip" onclick="clearReadingHistory()">
+                    <span>پاکسازی تاریخچه خوانش</span>
+                </button>
+            </section>
+        </div>
+
+        <!-- ========================================================
+             VIEW 10: ABOUT US (درباره قاف)
+             ======================================================== -->
+        <div id="view-about" class="spa-view">
+            <!-- SECTION 1: ABOUT QAF -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h1>درباره قاف</h1>
+                    </div>
+                </div>
+                <div class="archival-text-card">
+                    <p class="archival-card-prose">
+                        «قاف» آرشیوی مینیمال، مستقل و ساختاریافته از گنجینه ادبیات و شعر کهن پارسی است. هدف این بستر، ارائه تجربه‌ای پیراسته، فارغ از شلوغی‌های بصری و با تمرکز مطلق بر خوانایی متون اصیل، ساختار دیوان‌ها و پژوهش در شاهکارهای سخنوران پارسی‌گوی است.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 2: GANJOOR ACKNOWLEDGMENT -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>قدردانی و سرچشمه داده‌ها</h2>
+                    </div>
+                </div>
+                <div class="archival-text-card">
+                    <p class="archival-card-prose">
+                        پایگاه داده متن اشعار و دیوان‌های این مجموعه، با بهره‌گیری از داده‌های باز و ارزشمند پروژه گران‌سنگ <strong>«گنجور»</strong> سامان یافته است. از کوشش‌های بی‌دریغ و خدمات بی‌بدیل گردانندگان و مشارکت‌کنندگان گنجور در گردآوری و پاسداری از میراث مکتوب زبان پارسی کمال سپاس و قدردانی را داریم.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 3: CRYPTO DONATIONS -->
+            <section>
+                <div class="archival-section-header">
+                    <div class="archival-header-title-wrap">
+                        <div class="archival-rhombus-icon"></div>
+                        <h2>حمایت مالی و همیاری</h2>
+                    </div>
+                </div>
+
+                <div class="crypto-wallets-list">
+                    <!-- Bitcoin -->
+                    <div class="crypto-unit-card">
+                        <div class="crypto-unit-header">
+                            <span class="crypto-network-badge">Bitcoin</span>
+                            <span>BTC Network</span>
+                        </div>
+                        <div><div class="crypto-name-title">بیت‌کوین (BTC)</div></div>
+                        <div class="crypto-address-box">
+                            <span class="crypto-address-text" id="btcAddr">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+                            <button type="button" class="crypto-copy-btn" onclick="copyCryptoAddress('btcAddr', this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>رونوشت</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ethereum / USDT -->
+                    <div class="crypto-unit-card">
+                        <div class="crypto-unit-header">
+                            <span class="crypto-network-badge">Ethereum / USDT</span>
+                            <span>ERC-20 / Arbitrum / Base</span>
+                        </div>
+                        <div><div class="crypto-name-title">اتریوم و تتر (ETH / USDT)</div></div>
+                        <div class="crypto-address-box">
+                            <span class="crypto-address-text" id="ethAddr">0x71C2d88B27b1409C8f6B6543bB29B245e1A14B29</span>
+                            <button type="button" class="crypto-copy-btn" onclick="copyCryptoAddress('ethAddr', this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>رونوشت</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TON -->
+                    <div class="crypto-unit-card">
+                        <div class="crypto-unit-header">
+                            <span class="crypto-network-badge">TON Network</span>
+                            <span>Toncoin</span>
+                        </div>
+                        <div><div class="crypto-name-title">تون‌کوین (TON)</div></div>
+                        <div class="crypto-address-box">
+                            <span class="crypto-address-text" id="tonAddr">EQD_________________TonAddressPlaceholder8xY</span>
+                            <button type="button" class="crypto-copy-btn" onclick="copyCryptoAddress('tonAddr', this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span>رونوشت</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- VISUAL COLOPHON (لنگر پایانی حرف ق) -->
+        <div class="app-colophon-anchor">
+            <div class="colophon-axis">
+                <div class="colophon-line"></div>
+                <span class="colophon-monogram">ق</span>
+                <div class="colophon-line"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================
+         11. FULL-SCREEN ARCHIVAL MENU
+         ============================================================ -->
+    <nav class="nav-drawer" id="navDrawer">
+        <div class="drawer-topbar">
+            <div class="drawer-topbar-inner">
+                <div class="topbar-brand-lockup" onclick="navigateTo('view-home'); closeDrawer();">
+                    <span class="topbar-brand-title">قاف</span>
+                    <div class="topbar-brand-rule"></div>
+                    <span class="topbar-brand-subtext">آرشیو ادبیات پارسی</span>
+                </div>
+
+                <button type="button" class="drawer-close-btn" aria-label="بستن منو" onclick="closeDrawer()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="drawer-body-scroll">
+            <div class="drawer-links-stack">
+                <div class="drawer-nav-item" id="navItem-home" onclick="navigateTo('view-home'); closeDrawer();">
+                    <span>صفحه نخست</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </div>
+
+                <div class="drawer-nav-item" id="navItem-poets" onclick="navigateTo('view-poets'); closeDrawer();">
+                    <span>سخنوران</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </div>
+
+                <div class="drawer-nav-item" id="navItem-works" onclick="navigateTo('view-works'); closeDrawer();">
+                    <span>آثار و دیوان‌ها</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </div>
+
+                <div class="drawer-nav-item" id="navItem-profile" onclick="navigateTo('view-profile'); closeDrawer();">
+                    <span>بایگانی و نشان‌ها</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </div>
+
+                <div class="drawer-nav-item" id="navItem-about" onclick="navigateTo('view-about'); closeDrawer();">
+                    <span>درباره قاف</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </div>
+            </div>
+
+            <div class="drawer-footer-block">
+                <button type="button" class="drawer-theme-btn" id="themeToggleBtn" aria-label="تغییر پوسته" onclick="toggleTheme()">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span class="theme-text-light">پوسته شب</span>
+                    <span class="theme-text-dark">پوسته روز</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         12. GLOBAL ADVANCED SEARCH MODAL OVERLAY
+         ============================================================ -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-scrim" onclick="closeGlobalSearch()"></div>
+        <div class="search-overlay-sheet">
+            <div class="search-overlay-inner">
+                <div class="sheet-header-row">
+                    <span class="sheet-title">جستجوی پیشرفته</span>
+                    <button type="button" class="frameless-action-btn" aria-label="بستن" onclick="closeGlobalSearch()" style="margin-left: -8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="global-search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        class="global-search-input"
+                        placeholder="جستجو در آرشیو ادبیات پارسی..."
+                        id="globalSearchInput"
+                    >
+                </div>
+
+                <div class="global-filter-grid">
+                    <div class="filter-field-group">
+                        <label>قلمرو جستجو:</label>
+                        <select class="archival-select" id="globalScopeFilter">
+                            <option value="all">کل آرشیو</option>
+                            <option value="poets">سخنوران</option>
+                            <option value="verses">ابیات و اشعار</option>
+                            <option value="works">آثار و دیوان‌ها</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>انتخاب سخنور:</label>
+                        <select class="archival-select" id="globalPoetFilter">
+                            <option value="">همه سخنوران</option>
+                            <option value="حافظ">حافظ شیرازی</option>
+                            <option value="سعدی">سعدی شیرازی</option>
+                            <option value="مولانا">مولانا جلال‌الدین</option>
+                            <option value="فردوسی">ابوالقاسم فردوسی</option>
+                            <option value="خیام">خیام نیشابوری</option>
+                            <option value="عطار">عطار نیشابوری</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field-group">
+                        <label>دوره و قرن تاریخی:</label>
+                        <select class="archival-select" id="globalCenturyFilter">
+                            <option value="">همه قرون تاریخی</option>
+                            <option value="4">قرن ۴ هـ.ق</option>
+                            <option value="5">قرن ۵ هـ.ق</option>
+                            <option value="6">قرن ۶ هـ.ق</option>
+                            <option value="7">قرن ۷ هـ.ق</option>
+                            <option value="8">قرن ۸ هـ.ق</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="global-action-bar">
+                    <button type="button" class="global-exec-btn" onclick="executeGlobalSearch()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>اجرای جستجوی پیشرفته</span>
+                    </button>
+                    <button type="button" class="global-reset-btn" onclick="resetGlobalSearchFilters()">پاکسازی فیلترها</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE CUSTOM LIST -->
+    <div class="modal-backdrop" id="createListModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">ساخت لیست سفارشی</span>
+                <button type="button" class="modal-close-btn" onclick="closeCreateListModal()">✕</button>
+            </div>
+            <div class="modal-field-group">
+                <label>عنوان لیست یا مجموعه:</label>
+                <input type="text" class="modal-input" id="newListName" placeholder="مثال: غزلیات ناب سبک هندی...">
+            </div>
+            <button type="button" class="modal-save-btn" onclick="saveNewList()">ذخیره لیست</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         13. JAVASCRIPT LOGIC & SPA ROUTER
+         ============================================================ -->
+    <script>
+        /* --- SPA ROUTING & NAVIGATION --- */
+        function navigateTo(viewId, params = {}) {
+            document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active-view'));
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.add('active-view');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update Top Bar Subtitle
+            const subtext = document.getElementById('topbarSubtext');
+            if (viewId === 'view-home') subtext.innerText = 'آرشیو ادبیات پارسی';
+            else if (viewId === 'view-poets') subtext.innerText = 'دانشنامه سخنوران';
+            else if (viewId === 'view-works') subtext.innerText = 'گنجینه آثار و دیوان‌ها';
+            else if (viewId === 'view-poet-detail') subtext.innerText = 'اطلاعات سخنور';
+            else if (viewId === 'view-work-hierarchical') subtext.innerText = 'اطلاعات اثر';
+            else if (viewId === 'view-work-flat') subtext.innerText = 'اطلاعات اثر';
+            else if (viewId === 'view-poem-reader') subtext.innerText = 'خوانش شعر';
+            else if (viewId === 'view-search') subtext.innerText = 'نتایج جستجو';
+            else if (viewId === 'view-profile') subtext.innerText = 'بایگانی و نشان‌ها';
+            else if (viewId === 'view-about') subtext.innerText = 'درباره قاف';
+
+            // Active Drawer Link Highlighting
+            document.querySelectorAll('.drawer-nav-item').forEach(el => el.classList.remove('active'));
+            if (viewId === 'view-home') document.getElementById('navItem-home')?.classList.add('active');
+            if (viewId === 'view-poets') document.getElementById('navItem-poets')?.classList.add('active');
+            if (viewId === 'view-works') document.getElementById('navItem-works')?.classList.add('active');
+            if (viewId === 'view-profile') document.getElementById('navItem-profile')?.classList.add('active');
+            if (viewId === 'view-about') document.getElementById('navItem-about')?.classList.add('active');
+
+            // Handle View-Specific Param Logic
+            if (viewId === 'view-profile') {
+                renderBookmarks();
+                renderReadingHistory();
+                if (params.tab) {
+                    const btn = document.querySelectorAll('.workspace-tab-btn')[params.tab === 'history' ? 1 : 0];
+                    switchMainTab(params.tab, btn);
+                }
+            }
+
+            if (viewId === 'view-home') {
+                renderRecentReading();
+            }
+
+            if (viewId === 'view-poet-detail' && params.poet) {
+                document.getElementById('poetDetailName').innerText = params.poet;
+            }
+
+            if (viewId === 'view-poem-reader') {
+                recordLastReading();
+            }
+        }
+
+        /* --- THEME LOGIC --- */
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            localStorage.setItem('theme', targetTheme);
+        }
+
+        /* --- DRAWER MENU --- */
+        function openDrawer() {
+            document.getElementById('navDrawer').classList.add('is-open');
+            document.getElementById('menuToggleBtn').classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            document.getElementById('navDrawer').classList.remove('is-open');
+            document.getElementById('menuToggleBtn').classList.remove('is-active');
+            document.body.style.overflow = '';
+        }
+
+        /* --- GLOBAL SEARCH MODAL --- */
+        function openGlobalSearch() {
+            document.getElementById('searchOverlay').classList.add('is-open');
+            document.getElementById('searchToggleBtn').classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                document.getElementById('globalSearchInput').focus();
+            }, 180);
+        }
+
+        function closeGlobalSearch() {
+            document.getElementById('searchOverlay').classList.remove('is-open');
+            document.getElementById('searchToggleBtn').classList.remove('is-active');
+            document.body.style.overflow = '';
+        }
+
+        function resetGlobalSearchFilters() {
+            document.getElementById('globalScopeFilter').selectedIndex = 0;
+            document.getElementById('globalPoetFilter').selectedIndex = 0;
+            document.getElementById('globalCenturyFilter').selectedIndex = 0;
+            document.getElementById('globalSearchInput').value = '';
+        }
+
+        function executeGlobalSearch() {
+            const val = document.getElementById('globalSearchInput').value.trim();
+            closeGlobalSearch();
+            navigateTo('view-search');
+            document.getElementById('searchResultsInput').value = val;
+            performLiveFilter();
+        }
+
+        /* --- SEARCH VIEW LIVE FILTERING --- */
+        function performLiveFilter() {
+            const query = document.getElementById('searchResultsInput').value.trim().toLowerCase();
+            const selectedScope = document.getElementById('scopeSelect').value;
+            const selectedPoet = document.getElementById('poetSelect').value;
+            const selectedCentury = document.getElementById('centurySelect').value;
+
+            const sections = [
+                { sec: document.getElementById('poetsResultSection'), grid: document.getElementById('poetsGridResults'), empty: document.getElementById('poetsEmptyMsg'), scope: 'poets' },
+                { sec: document.getElementById('worksResultSection'), grid: document.getElementById('worksGridResults'), empty: document.getElementById('worksEmptyMsg'), scope: 'works' },
+                { sec: document.getElementById('versesResultSection'), grid: document.getElementById('versesGridResults'), empty: document.getElementById('versesEmptyMsg'), scope: 'verses' }
+            ];
+
+            sections.forEach(({ sec, grid, empty, scope }) => {
+                const isScopeMatch = (selectedScope === 'all' || selectedScope === scope);
+                if (!isScopeMatch) {
+                    sec.style.display = 'none';
+                    return;
+                }
+                sec.style.display = 'flex';
+                const cards = Array.from(grid.children);
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const text = card.innerText.toLowerCase();
+                    const cardPoet = card.getAttribute('data-poet') || card.getAttribute('data-name') || '';
+                    const cardCentury = card.getAttribute('data-century') || '';
+
+                    const matchesQuery = !query || text.includes(query);
+                    const matchesPoet = !selectedPoet || cardPoet.includes(selectedPoet);
+                    const matchesCentury = !selectedCentury || cardCentury === selectedCentury;
+
+                    if (matchesQuery && matchesPoet && matchesCentury) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                } else {
+                    grid.style.display = 'flex';
+                    empty.style.display = 'none';
+                }
+            });
+        }
+
+        function resetSearchPageFilters() {
+            document.getElementById('searchResultsInput').value = '';
+            document.getElementById('scopeSelect').selectedIndex = 0;
+            document.getElementById('poetSelect').selectedIndex = 0;
+            document.getElementById('centurySelect').selectedIndex = 0;
+            performLiveFilter();
+        }
+
+        /* --- POETS DIRECTORY FILTERING --- */
+        function filterPoetsLive() {
+            const searchQuery = document.getElementById('poetSearchInput').value.trim().toLowerCase();
+            const selectedCentury = document.getElementById('poetCenturyFilter').value;
+            const selectedCity = document.getElementById('poetCityFilter').value;
+            const selectedSort = document.getElementById('poetSortFilter').value;
+            
+            const grid = document.getElementById('poetsGrid');
+            const cards = Array.from(grid.getElementsByClassName('poet-card'));
+            const emptyBox = document.getElementById('poetsEmptyBox');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const century = card.getAttribute('data-century') || '';
+                const city = card.getAttribute('data-city') || '';
+                const textContent = card.innerText.toLowerCase();
+
+                const matchesSearch = !searchQuery || name.includes(searchQuery) || textContent.includes(searchQuery);
+                const matchesCentury = !selectedCentury || century === selectedCentury;
+                const matchesCity = !selectedCity || (city && city.includes(selectedCity));
+
+                if (matchesSearch && matchesCentury && matchesCity) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            cards.sort((a, b) => {
+                if (selectedSort === 'historical-asc') {
+                    return parseInt(a.getAttribute('data-year') || '0') - parseInt(b.getAttribute('data-year') || '0');
+                } else if (selectedSort === 'historical-desc') {
+                    return parseInt(b.getAttribute('data-year') || '0') - parseInt(a.getAttribute('data-year') || '0');
+                } else if (selectedSort === 'alphabetical') {
+                    return (a.getAttribute('data-name') || '').localeCompare(b.getAttribute('data-name') || '', 'fa');
+                }
+                return 0;
+            });
+            cards.forEach(card => grid.appendChild(card));
+
+            emptyBox.style.display = (visibleCount === 0) ? 'flex' : 'none';
+        }
+
+        function resetPoetDirectoryFilters() {
+            document.getElementById('poetSearchInput').value = '';
+            document.getElementById('poetCenturyFilter').selectedIndex = 0;
+            document.getElementById('poetCityFilter').selectedIndex = 0;
+            document.getElementById('poetSortFilter').selectedIndex = 0;
+            filterPoetsLive();
+        }
+
+        /* --- WORKS DIRECTORY FILTERING --- */
+        function filterWorksLive() {
+            const searchQuery = document.getElementById('workSearchInput').value.trim().toLowerCase();
+            const selectedPoet = document.getElementById('workPoetFilter').value;
+            const selectedCentury = document.getElementById('workCenturyFilter').value;
+            const selectedSort = document.getElementById('workSortFilter').value;
+            
+            const grid = document.getElementById('worksGrid');
+            const cards = Array.from(grid.getElementsByClassName('work-card'));
+            const emptyBox = document.getElementById('worksEmptyBox');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const title = (card.getAttribute('data-title') || '').toLowerCase();
+                const poet = card.getAttribute('data-poet') || '';
+                const century = card.getAttribute('data-century') || '';
+                const textContent = card.innerText.toLowerCase();
+
+                const matchesSearch = !searchQuery || title.includes(searchQuery) || textContent.includes(searchQuery);
+                const matchesPoet = !selectedPoet || poet.includes(selectedPoet);
+                const matchesCentury = !selectedCentury || century === selectedCentury;
+
+                if (matchesSearch && matchesPoet && matchesCentury) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            cards.sort((a, b) => {
+                if (selectedSort === 'historical-asc') {
+                    return parseInt(a.getAttribute('data-year') || '0') - parseInt(b.getAttribute('data-year') || '0');
+                } else if (selectedSort === 'historical-desc') {
+                    return parseInt(b.getAttribute('data-year') || '0') - parseInt(a.getAttribute('data-year') || '0');
+                } else if (selectedSort === 'alphabetical') {
+                    return (a.getAttribute('data-title') || '').localeCompare(b.getAttribute('data-title') || '', 'fa');
+                }
+                return 0;
+            });
+            cards.forEach(card => grid.appendChild(card));
+
+            emptyBox.style.display = (visibleCount === 0) ? 'flex' : 'none';
+        }
+
+        function resetWorkDirectoryFilters() {
+            document.getElementById('workSearchInput').value = '';
+            document.getElementById('workPoetFilter').selectedIndex = 0;
+            document.getElementById('workCenturyFilter').selectedIndex = 0;
+            document.getElementById('workSortFilter').selectedIndex = 0;
+            filterWorksLive();
+        }
+
+        /* --- FLAT WORK LIVE FILTER --- */
+        function filterFlatPoemsLive() {
+            const query = document.getElementById('flatSearchInput').value.trim().toLowerCase();
+            const list = document.getElementById('flatPoemsList');
+            const cards = Array.from(list.getElementsByClassName('poem-flat-card'));
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
+            });
+        }
+
+        /* --- POEM READER: ZEN MODE, COPY, BOOKMARKS --- */
+        function toggleZenMode(enable) {
+            document.body.classList.toggle('zen-active', enable);
+            const btn = document.getElementById('zenToggleBtn');
+            if (btn) btn.classList.toggle('is-active', enable);
+        }
+
+        function copySingleVerse(btn) {
+            const block = btn.closest('.verse-block');
+            const lines = Array.from(block.querySelectorAll('.hemistich-line')).map(l => l.innerText.trim());
+            const textToCopy = lines.join(' / ');
+            navigator.clipboard.writeText(textToCopy);
+            const span = btn.querySelector('span');
+            span.innerText = 'کپی شد';
+            setTimeout(() => { span.innerText = 'کپی'; }, 1500);
+        }
+
+        function copyFullPoem(btn) {
+            const title = document.getElementById('poemMainHeading').innerText;
+            const verses = Array.from(document.querySelectorAll('.verse-block')).map(b => {
+                const lines = Array.from(b.querySelectorAll('.hemistich-line')).map(l => l.innerText.trim());
+                return lines.join('\n');
+            }).join('\n\n');
+            const fullText = `«${title}»\nحافظ شیرازی\n\n${verses}\n\n— برگرفته از آرشیو ادبیات پارسی قاف`;
+            navigator.clipboard.writeText(fullText);
+            btn.classList.add('is-active');
+            setTimeout(() => { btn.classList.remove('is-active'); }, 1500);
+        }
+
+        function togglePoemBookmark(btn) {
+            btn.classList.toggle('is-active');
+            let bookmarks = JSON.parse(localStorage.getItem('qaf_bookmarked_poems') || '[]');
+            if (btn.classList.contains('is-active')) {
+                if (!bookmarks.includes('غزل شماره ۱')) bookmarks.push('غزل شماره ۱');
+            } else {
+                bookmarks = bookmarks.filter(p => p !== 'غزل شماره ۱');
+            }
+            localStorage.setItem('qaf_bookmarked_poems', JSON.stringify(bookmarks));
+        }
+
+        function toggleVerseBookmark(btn, verseId) {
+            const block = btn.closest('.verse-block');
+            block.classList.toggle('is-bookmarked');
+            btn.classList.toggle('is-active');
+            const isBookmarked = block.classList.contains('is-bookmarked');
+            btn.querySelector('span').innerText = isBookmarked ? 'نشان شد' : 'نشان';
+            let saved = JSON.parse(localStorage.getItem('qaf_bookmarked_verses') || '[]');
+            if (isBookmarked) {
+                if (!saved.includes(verseId)) saved.push(verseId);
+            } else {
+                saved = saved.filter(id => id !== verseId);
+            }
+            localStorage.setItem('qaf_bookmarked_verses', JSON.stringify(saved));
+        }
+
+        function togglePoetBookmark(btn) {
+            btn.classList.toggle('is-bookmarked');
+            let bookmarks = JSON.parse(localStorage.getItem('qaf_bookmarked_poets') || '[]');
+            if (btn.classList.contains('is-bookmarked')) {
+                if (!bookmarks.includes('حافظ شیرازی')) bookmarks.push('حافظ شیرازی');
+            } else {
+                bookmarks = bookmarks.filter(p => p !== 'حافظ شیرازی');
+            }
+            localStorage.setItem('qaf_bookmarked_poets', JSON.stringify(bookmarks));
+        }
+
+        function toggleWorkBookmark(workName, btn) {
+            btn.classList.toggle('is-bookmarked');
+            let bookmarks = JSON.parse(localStorage.getItem('qaf_bookmarked_works') || '[]');
+            if (btn.classList.contains('is-bookmarked')) {
+                if (!bookmarks.includes(workName)) bookmarks.push(workName);
+            } else {
+                bookmarks = bookmarks.filter(w => w !== workName);
+            }
+            localStorage.setItem('qaf_bookmarked_works', JSON.stringify(bookmarks));
+        }
+
+        function recordLastReading() {
+            const lastReadData = {
+                title: 'غزل شماره ۱',
+                author: 'حافظ شیرازی',
+                workTitle: 'دیوان اشعار',
+                number: '1',
+                line1: 'الا یا اَیها السّاقی اَدِر کأساً و ناوِلها',
+                line2: 'که عشق آسان نمود اوّل ولی افتاد مشکل‌ها'
+            };
+            localStorage.setItem('qaf_last_read_poem', JSON.stringify(lastReadData));
+
+            const history = JSON.parse(localStorage.getItem('qaf_reading_history') || '[]');
+            const filtered = history.filter(h => h.title !== lastReadData.title || h.workTitle !== lastReadData.workTitle);
+            filtered.unshift({ title: lastReadData.title, author: lastReadData.author, workTitle: lastReadData.workTitle });
+            localStorage.setItem('qaf_reading_history', JSON.stringify(filtered.slice(0, 20)));
+        }
+
+        /* --- PROFILE TABS & BOOKMARKS LOGIC --- */
+        function switchMainTab(tabId, btn) {
+            document.querySelectorAll('.workspace-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            if (tabId === 'bookmarks') document.getElementById('tabPanelBookmarks').classList.add('active');
+            if (tabId === 'history') document.getElementById('tabPanelHistory').classList.add('active');
+        }
+
+        function filterByCollection(category, btn) {
+            document.querySelectorAll('.collection-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const cards = document.querySelectorAll('#bookmarksUnitsList .bookmark-unit-card');
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                card.style.display = (category === 'all' || cardCat === category || cardCat === 'all') ? 'flex' : 'none';
+            });
+        }
+
+        function removeBookmarkUnit(btn, id, type) {
+            const keyMap = { poet: 'qaf_bookmarked_poets', work: 'qaf_bookmarked_works', verse: 'qaf_bookmarked_verses', poem: 'qaf_bookmarked_poems' };
+            const key = keyMap[type];
+            if (key) {
+                let items = JSON.parse(localStorage.getItem(key) || '[]');
+                items = items.filter(i => String(i) !== String(id));
+                localStorage.setItem(key, JSON.stringify(items));
+            }
+            renderBookmarks();
+        }
+
+        function clearReadingHistory() {
+            localStorage.removeItem('qaf_reading_history');
+            localStorage.removeItem('qaf_last_read_poem');
+            renderReadingHistory();
+            renderRecentReading();
+        }
+
+        /* --- EMPTY STATE TEMPLATES --- */
+        function emptyStateHTML(iconSvg, title, sub) {
+            return `<div class="empty-state-box">
+                <span class="empty-state-icon">${iconSvg}</span>
+                <span class="empty-state-title">${title}</span>
+                <span class="empty-state-sub">${sub}</span>
+            </div>`;
+        }
+
+        const ICON_BOOK = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>';
+        const ICON_BOOKMARK = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
+        const ICON_HISTORY = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 15"></polyline></svg>';
+
+        /* --- RENDER: RECENT READING (HOME) --- */
+        function renderRecentReading() {
+            const container = document.getElementById('recentReadingContent');
+            if (!container) return;
+            const raw = localStorage.getItem('qaf_last_read_poem');
+            const data = raw ? JSON.parse(raw) : null;
+
+            if (!data || !data.title) {
+                container.innerHTML = emptyStateHTML(
+                    ICON_BOOK,
+                    'هنوز شعری نخوانده‌اید',
+                    'با انتخاب یک سخنور یا اثر، مطالعه خود را آغاز کنید.'
+                );
+                return;
+            }
+
+            container.innerHTML = `<div class="poem-flat-card" onclick="navigateTo('view-poem-reader')">
+                <div class="poem-card-header">
+                    <span class="poem-number-badge">${data.title}</span>
+                </div>
+                <div class="poem-opening-couplet">
+                    <div class="hemistich-line">${data.line1}</div>
+                    <div class="hemistich-line">${data.line2}</div>
+                </div>
+                <div class="poem-card-footer">
+                    <span class="poem-meta-text">${data.author} • ${data.workTitle}</span>
+                    <span class="poem-action-link">خوانش ←</span>
+                </div>
+            </div>`;
+        }
+
+        /* --- STATIC METADATA (used to enrich bookmark cards, same info shown in search results) --- */
+        const POET_META = {
+            'عطار نیشابوری': { sub: 'قرن ۶ هـ.ق — نیشابور' },
+            'حافظ شیرازی': { sub: 'قرن ۸ هـ.ق — شیراز' },
+            'سعدی شیرازی': { sub: 'قرن ۷ هـ.ق — شیراز' },
+            'مولانا جلال‌الدین': { sub: 'قرن ۷ هـ.ق — بلخ' },
+            'ابوالقاسم فردوسی': { sub: 'قرن ۴ هـ.ق — توس' },
+            'خیام نیشابوری': { sub: 'قرن ۵ هـ.ق — نیشابور' }
+        };
+        const WORK_META = {
+            'مثنوی معنوی': { sub: 'مولانا جلال‌الدین • قرن ۷ هـ.ق' },
+            'دیوان اشعار حافظ': { sub: 'حافظ شیرازی • قرن ۸ هـ.ق' },
+            'دیوان اشعار': { sub: 'حافظ شیرازی • قرن ۸ هـ.ق' }
+        };
+        const VERSE_META = {
+            1: { text: 'الا یا اَیها السّاقی اَدِر کأساً و ناوِلها<br>که عشق آسان نمود اوّل ولی افتاد مشکل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' },
+            2: { text: 'به بویِ نافه‌ای کآخر صبا زان طُرّه بگشاید<br>ز تابِ جَعدِ مشکینش چه خون افتاد در دل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' },
+            3: { text: 'به می سجاده رنگین کن گرت پیرِ مغان گوید<br>که سالک بی‌خبر نبود ز راه و رسمِ منزل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' },
+            4: { text: 'مرا در منزلِ جانان چه امنِ عیش چون هر دم<br>جرس فریاد می‌دارد که بربندید محمل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' },
+            5: { text: 'شبِ تاریک و بیمِ موج و گردابی چنین هایل<br>کجا دانند حالِ ما سبکبارانِ ساحل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' },
+            6: { text: 'همه کارم ز خودکامی به بدنامی کشید آخر<br>نهان کی ماند آن رازی کز او سازند محفل‌ها', sub: 'حافظ شیرازی | دیوان اشعار' }
+        };
+        const POEM_META = {
+            'غزل شماره ۱': { sub: 'حافظ شیرازی | دیوان اشعار', text: 'الا یا اَیها السّاقی اَدِر کأساً و ناوِلها<br>که عشق آسان نمود اوّل ولی افتاد مشکل‌ها' }
+        };
+
+        /* --- RENDER: BOOKMARKS (PROFILE) --- */
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarksUnitsList');
+            if (!container) return;
+            const poets = JSON.parse(localStorage.getItem('qaf_bookmarked_poets') || '[]');
+            const works = JSON.parse(localStorage.getItem('qaf_bookmarked_works') || '[]');
+            const verses = JSON.parse(localStorage.getItem('qaf_bookmarked_verses') || '[]');
+            const poems = JSON.parse(localStorage.getItem('qaf_bookmarked_poems') || '[]');
+
+            if (poets.length === 0 && works.length === 0 && verses.length === 0 && poems.length === 0) {
+                container.innerHTML = emptyStateHTML(
+                    ICON_BOOKMARK,
+                    'هنوز نشانی ذخیره نکرده‌اید',
+                    'سخنوران، آثار یا ابیات مورد علاقه خود را نشان‌گذاری کنید تا اینجا نمایش داده شوند.'
+                );
+                return;
+            }
+
+            // Bookmarked items are rendered using the same card structure as global search results.
+            let html = '';
+            poets.forEach(name => {
+                const sub = (POET_META[name] && POET_META[name].sub) || '';
+                html += `<div class="bookmark-unit-card" data-category="all">
+                    <div class="bookmark-unit-header">
+                        <span class="bookmark-type-badge">سخنور</span>
+                        <button type="button" class="remove-bookmark-btn" onclick="event.stopPropagation(); removeBookmarkUnit(this, '${name}', 'poet')">✕ حذف</button>
+                    </div>
+                    <div onclick="navigateTo('view-poet-detail', {poet: '${name}'})">
+                        <div class="bookmark-unit-title">${name}</div>
+                        ${sub ? `<div class="bookmark-unit-sub">${sub}</div>` : ''}
+                    </div>
+                    <div class="bookmark-unit-footer">
+                        <span class="bookmark-action-link" onclick="navigateTo('view-poet-detail', {poet: '${name}'})">مشاهده ←</span>
+                    </div>
+                </div>`;
+            });
+            works.forEach(name => {
+                const sub = (WORK_META[name] && WORK_META[name].sub) || '';
+                html += `<div class="bookmark-unit-card" data-category="epic">
+                    <div class="bookmark-unit-header">
+                        <span class="bookmark-type-badge">اثر</span>
+                        <button type="button" class="remove-bookmark-btn" onclick="event.stopPropagation(); removeBookmarkUnit(this, '${name}', 'work')">✕ حذف</button>
+                    </div>
+                    <div onclick="navigateTo('view-work-flat')">
+                        <div class="bookmark-unit-title">${name}</div>
+                        ${sub ? `<div class="bookmark-unit-sub">${sub}</div>` : ''}
+                    </div>
+                    <div class="bookmark-unit-footer">
+                        <span class="bookmark-action-link" onclick="navigateTo('view-work-flat')">مطالعه ←</span>
+                    </div>
+                </div>`;
+            });
+            poems.forEach(title => {
+                const meta = POEM_META[title] || {};
+                const text = meta.text || title;
+                const sub = meta.sub || '';
+                html += `<div class="bookmark-unit-card" data-category="mystic">
+                    <div class="bookmark-unit-header">
+                        <span class="bookmark-type-badge">شعر</span>
+                        <button type="button" class="remove-bookmark-btn" onclick="event.stopPropagation(); removeBookmarkUnit(this, '${title}', 'poem')">✕ حذف</button>
+                    </div>
+                    <div onclick="navigateTo('view-poem-reader')">
+                        <div class="bookmark-unit-title">${title}</div>
+                        ${sub ? `<div class="bookmark-unit-sub">${sub}</div>` : ''}
+                    </div>
+                    <div class="bookmark-unit-footer">
+                        <span class="bookmark-action-link" onclick="navigateTo('view-poem-reader')">خوانش ←</span>
+                    </div>
+                </div>`;
+            });
+            verses.forEach(id => {
+                const meta = VERSE_META[id] || {};
+                const text = meta.text || `بیت ${id}`;
+                const sub = meta.sub || '';
+                html += `<div class="bookmark-unit-card" data-category="mystic">
+                    <div class="bookmark-unit-header">
+                        <span class="bookmark-type-badge">تک‌بیت</span>
+                        <button type="button" class="remove-bookmark-btn" onclick="event.stopPropagation(); removeBookmarkUnit(this, '${id}', 'verse')">✕ حذف</button>
+                    </div>
+                    <div onclick="navigateTo('view-poem-reader')">
+                        <div class="bookmark-unit-title" style="font-weight: 400; font-size: 13.5px; line-height: 1.85;">«${text}»</div>
+                        ${sub ? `<div class="bookmark-unit-sub">${sub}</div>` : ''}
+                    </div>
+                    <div class="bookmark-unit-footer">
+                        <span class="bookmark-action-link" onclick="navigateTo('view-poem-reader')">خوانش ←</span>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        /* --- RENDER: READING HISTORY (PROFILE) --- */
+        function renderReadingHistory() {
+            const container = document.getElementById('historyListStream');
+            if (!container) return;
+            const history = JSON.parse(localStorage.getItem('qaf_reading_history') || '[]');
+
+            if (history.length === 0) {
+                container.innerHTML = emptyStateHTML(
+                    ICON_HISTORY,
+                    'تاریخچه خوانش خالی است',
+                    'اشعاری که مطالعه می‌کنید، برای دسترسی سریع در اینجا ثبت می‌شوند.'
+                );
+                return;
+            }
+
+            container.innerHTML = history.map(item => `
+                <div class="history-item-row" onclick="navigateTo('view-poem-reader')">
+                    <div class="history-item-info">
+                        <span class="history-poem-title">${item.title}</span>
+                        <span class="history-poem-meta">${item.author} • ${item.workTitle}</span>
+                    </div>
+                    <div class="history-action-side">
+                        <span class="history-read-link">بازخوانی ←</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCreateListModal() {
+            document.getElementById('createListModal').classList.add('open');
+            setTimeout(() => { document.getElementById('newListName').focus(); }, 100);
+        }
+
+        function closeCreateListModal() {
+            document.getElementById('createListModal').classList.remove('open');
+            document.getElementById('newListName').value = '';
+        }
+
+        function saveNewList() {
+            const name = document.getElementById('newListName').value.trim();
+            if (!name) return;
+            const row = document.getElementById('categoriesScrollRow');
+            const newBtn = document.createElement('button');
+            newBtn.type = 'button';
+            newBtn.className = 'collection-chip';
+            newBtn.innerHTML = `<span>${name}</span>`;
+            const randomId = 'custom_' + Date.now();
+            newBtn.onclick = function() { filterByCollection(randomId, this); };
+            const createBtn = row.querySelector('.create-list-action-chip');
+            row.insertBefore(newBtn, createBtn);
+            closeCreateListModal();
+        }
+
+        function exportDataBackup() {
+            const backupData = {
+                app: "QAF_LITERARY_ARCHIVE",
+                timestamp: new Date().toISOString(),
+                bookmarks: JSON.parse(localStorage.getItem('qaf_bookmarked_poems') || '[]'),
+                poetBookmarks: JSON.parse(localStorage.getItem('qaf_bookmarked_poets') || '[]'),
+                workBookmarks: JSON.parse(localStorage.getItem('qaf_bookmarked_works') || '[]'),
+                verseBookmarks: JSON.parse(localStorage.getItem('qaf_bookmarked_verses') || '[]'),
+                lastRead: JSON.parse(localStorage.getItem('qaf_last_read_poem') || '{}')
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `qaf_backup_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+        }
+
+        function importDataBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.app === "QAF_LITERARY_ARCHIVE") {
+                        if (parsed.bookmarks) localStorage.setItem('qaf_bookmarked_poems', JSON.stringify(parsed.bookmarks));
+                        if (parsed.poetBookmarks) localStorage.setItem('qaf_bookmarked_poets', JSON.stringify(parsed.poetBookmarks));
+                        if (parsed.workBookmarks) localStorage.setItem('qaf_bookmarked_works', JSON.stringify(parsed.workBookmarks));
+                        if (parsed.verseBookmarks) localStorage.setItem('qaf_bookmarked_verses', JSON.stringify(parsed.verseBookmarks));
+                        if (parsed.lastRead) localStorage.setItem('qaf_last_read_poem', JSON.stringify(parsed.lastRead));
+                        alert('پشتیبان با موفقیت بازیابی شد.');
+                    }
+                } catch (err) {}
+            };
+            reader.readAsText(file);
+        }
+
+        /* --- CRYPTO ADDRESS COPY --- */
+        function copyCryptoAddress(elementId, btn) {
+            const text = document.getElementById(elementId).innerText.trim();
+            navigator.clipboard.writeText(text);
+            const span = btn.querySelector('span');
+            span.innerText = 'رونوشت شد';
+            setTimeout(() => { span.innerText = 'رونوشت'; }, 1800);
+        }
+
+        /* --- GLOBAL KEYBOARD ESCAPE LISTENER --- */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.body.classList.contains('zen-active')) {
+                    toggleZenMode(false);
+                } else {
+                    closeGlobalSearch();
+                    closeDrawer();
+                    closeCreateListModal();
+                }
+            }
+        });
+
+        // Initialize App
+        initTheme();
+        renderRecentReading();
+        initDatabaseTest();
+
+        async function initDatabaseTest() {
+            try {
+                const sqlitePlugin = Capacitor.Plugins.CapacitorSQLite;
+
+                // Copy bundled databases from public/assets/databases/
+                // to the SQLite plugin's internal database directory.
+                await sqlitePlugin.copyFromAssets(true);
+                console.log('Database copied from assets successfully');
+
+                // Open the copied qaf database.
+                await sqlitePlugin.createConnection({
+                    database: 'qaf',
+                    version: 1,
+                    encrypted: false,
+                    mode: 'no-encryption',
+                    readonly: false
+                });
+
+                await sqlitePlugin.open({
+                    database: 'qaf',
+                    readonly: false
+                });
+
+                // Verify that the expected schema exists.
+                const result = await sqlitePlugin.query({
+                    database: 'qaf',
+                    statement: 'SELECT COUNT(*) as cnt FROM poet',
+                    values: [],
+                    readonly: false
+                });
+
+                const count = result.values && result.values[0]
+                    ? result.values[0].cnt
+                    : '؟';
+
+                console.log('Database opened successfully. Poet count:', count);
+
+                const subtext = document.getElementById('topbarSubtext');
+                if (subtext) {
+                    subtext.innerText = 'تعداد شاعران: ' + count;
+                }
+
+            } catch (err) {
+                console.error('Database initialization error:', err);
+
+                const subtext = document.getElementById('topbarSubtext');
+                if (subtext) {
+                    subtext.innerText = 'خطا: ' + (err.message || err);
+                }
+            }
+        }
+        renderBookmarks();
+        renderReadingHistory();
+    </script>
+</body>
+</html>

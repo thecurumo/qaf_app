@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Qaf</string>
+    <string name="title_activity_main">Qaf</string>
+    <string name="package_name">com.thecurumo.qaf</string>
+    <string name="custom_url_scheme">com.thecurumo.qaf</string>
+</resources>

@@ -1,0 +1,54 @@
+package com.thecurumo.qaf
+
+import com.getcapacitor.JSObject
+import com.getcapacitor.Plugin
+import com.getcapacitor.PluginCall
+import com.getcapacitor.PluginMethod
+import com.getcapacitor.annotation.CapacitorPlugin
+import java.io.File
+import java.io.FileOutputStream
+import java.util.zip.GZIPInputStream
+
+@CapacitorPlugin(name = "DatabaseSetup")
+class DatabaseSetupPlugin : Plugin() {
+
+    private val databaseFileName = "qaf.db"
+    private val assetGzName = "public/assets/databases/qaf.db.gz"
+
+    @PluginMethod
+    fun ensureDatabaseReady(call: PluginCall) {
+        try {
+            val context = context
+            val databasesDir = File(context.filesDir.parentFile, "databases")
+            if (!databasesDir.exists()) {
+                databasesDir.mkdirs()
+            }
+
+            val targetFile = File(databasesDir, databaseFileName)
+
+            if (targetFile.exists() && targetFile.length() > 0) {
+                val result = JSObject()
+                result.put("alreadyExists", true)
+                result.put("path", targetFile.absolutePath)
+                call.resolve(result)
+                return
+            }
+
+            context.assets.open(assetGzName).use { assetStream ->
+                GZIPInputStream(assetStream).use { gzipStream ->
+                    FileOutputStream(targetFile).use { outputStream ->
+                        gzipStream.copyTo(outputStream)
+                    }
+                }
+            }
+
+            val result = JSObject()
+            result.put("alreadyExists", false)
+            result.put("path", targetFile.absolutePath)
+            call.resolve(result)
+
+        } catch (e: Exception) {
+            call.reject("خطا در آماده‌سازی دیتابیس: ${e.message}", e)
+        }
+    }
+}

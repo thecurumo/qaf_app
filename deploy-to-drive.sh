@@ -1,11 +1,19 @@
 #!/bin/bash
 set -e
 
-cd /workspaces/qaf_app
+cd /workspaces/qaf_app/capacitor-app/android
 
 echo "=========================================="
-echo "مرحله ۱: بیلد اپلیکیشن"
+echo "مرحله ۱: همگام‌سازی فایل‌های وب با اندروید"
 echo "=========================================="
+cd /workspaces/qaf_app/capacitor-app
+npx cap sync android
+
+echo ""
+echo "=========================================="
+echo "مرحله ۲: بیلد اپلیکیشن"
+echo "=========================================="
+cd android
 ./gradlew assembleDebug
 
 APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
@@ -17,7 +25,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "مرحله ۲: آپلود به گوگل درایو"
+echo "مرحله ۳: آپلود به گوگل درایو"
 echo "=========================================="
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
