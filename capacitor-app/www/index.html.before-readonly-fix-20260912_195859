@@ -3014,7 +3014,7 @@
 
   async function dbQuery(statement, values = []) {
     if (!state.dbReady || !state.db) throw new Error('پایگاه داده هنوز آماده نیست.');
-    const result = await state.db.query({database: DB_NAME, statement, values, readonly: false});
+    const result = await state.db.query({database: DB_NAME, statement, values, readonly: true});
     return rows(result);
   }
 
@@ -3149,7 +3149,7 @@
     try {
       const tables = await sqlite.getTableList({
         database: DB_NAME,
-        readonly: false
+        readonly: true
       });
 
       console.log(

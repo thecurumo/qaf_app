@@ -3014,49 +3014,21 @@
 
   async function dbQuery(statement, values = []) {
     if (!state.dbReady || !state.db) throw new Error('پایگاه داده هنوز آماده نیست.');
-    const result = await state.db.query({database: DB_NAME, statement, values, readonly: false});
+    const result = await state.db.query({database: DB_NAME, statement, values, readonly: true});
     return rows(result);
   }
 
   async function initDatabase() {
     const sqlite = window.Capacitor?.Plugins?.CapacitorSQLite;
+    if (!sqlite) throw new Error('پلاگین CapacitorSQLite در محیط اجرا در دسترس نیست.');
 
-    if (!sqlite) {
-      throw new Error('پلاگین CapacitorSQLite در محیط اجرا در دسترس نیست.');
-    }
-
-    console.log('QAF SQLite: شروع آماده‌سازی دیتابیس');
-
-    /*
-     * IMPORTANT:
-     * copyFromAssets expects an options object.
-     * The previous code used copyFromAssets(true), which resulted
-     * in an empty methodData object on the native Capacitor side.
-     */
     try {
-      console.log('QAF SQLite: copyFromAssets شروع شد');
-
-      await sqlite.copyFromAssets({
-        overwrite: true
-      });
-
-      console.log('QAF SQLite: copyFromAssets موفق بود');
+      await sqlite.copyFromAssets(true);
     } catch (e) {
-      console.error('QAF SQLite: copyFromAssets خطا:', e);
-      throw new Error(
-        `کپی دیتابیس از Assets انجام نشد: ${e?.message || String(e)}`
-      );
+      console.warn('copyFromAssets:', e);
     }
 
-    /*
-     * Create the connection.
-     *
-     * We deliberately do NOT swallow errors here.
-     * If connection creation fails, initialization must stop.
-     */
     try {
-      console.log('QAF SQLite: createConnection شروع شد');
-
       await sqlite.createConnection({
         database: DB_NAME,
         version: 1,
@@ -3064,169 +3036,30 @@
         mode: 'no-encryption',
         readonly: false
       });
+    } catch (e) {
+      console.warn('createConnection:', e);
+    }
 
-      console.log('QAF SQLite: createConnection موفق بود');
+    try {
+      await sqlite.open({database: DB_NAME, readonly: false});
     } catch (e) {
       const message = String(e?.message || e);
-
-      /*
-       * If the connection already exists, that is not fatal.
-       * We can continue and open it.
-       */
-      if (!/already exists|already open|connection.*exist/i.test(message)) {
-        console.error('QAF SQLite: createConnection خطا:', e);
-        throw new Error(
-          `ساخت اتصال SQLite انجام نشد: ${message}`
-        );
-      }
-
-      console.log(
-        'QAF SQLite: connection از قبل وجود دارد؛ ادامه می‌دهیم.'
-      );
+      if (!/already|open/i.test(message)) throw e;
     }
 
-    /*
-     * Open the database connection.
-     */
-    try {
-      console.log('QAF SQLite: open شروع شد');
-
-      await sqlite.open({
-        database: DB_NAME,
-        readonly: false
-      });
-
-      console.log('QAF SQLite: open موفق بود');
-    } catch (e) {
-      const message = String(e?.message || e);
-
-      /*
-       * "already open" is harmless.
-       */
-      if (!/already.*open|database.*open/i.test(message)) {
-        console.error('QAF SQLite: open خطا:', e);
-        throw new Error(
-          `باز کردن اتصال SQLite انجام نشد: ${message}`
-        );
-      }
-
-      console.log(
-        'QAF SQLite: database از قبل باز است؛ ادامه می‌دهیم.'
-      );
-    }
-
-    /*
-     * Verify that SQLite actually considers the database open.
-     * This is the critical check missing from the previous code.
-     */
-    try {
-      const openState = await sqlite.isDBOpen({
-        database: DB_NAME,
-        readonly: false
-      });
-
-      console.log(
-        'QAF SQLite: isDBOpen:',
-        JSON.stringify(openState)
-      );
-
-      if (!openState?.result) {
-        throw new Error(
-          'SQLite اعلام کرد database باز نیست.'
-        );
-      }
-    } catch (e) {
-      console.error('QAF SQLite: isDBOpen خطا:', e);
-      throw new Error(
-        `اتصال SQLite باز نشده است: ${e?.message || String(e)}`
-      );
-    }
-
-    /*
-     * Verify the actual database schema before marking the app
-     * as ready.
-     */
-    try {
-      const tables = await sqlite.getTableList({
-        database: DB_NAME,
-        readonly: false
-      });
-
-      console.log(
-        'QAF SQLite: tables:',
-        JSON.stringify(tables)
-      );
-
-      const tableRows = Array.isArray(tables?.values)
-        ? tables.values
-        : [];
-
-      const tableNames = tableRows.map(row => {
-        if (Array.isArray(row)) return String(row[0] ?? '');
-        if (row && typeof row === 'object') {
-          return String(
-            row.name ??
-            row.tbl_name ??
-            row.table_name ??
-            ''
-          );
-        }
-        return String(row ?? '');
-      });
-
-      const requiredTables = ['poet', 'cat', 'poem', 'verse'];
-
-      const missingTables = requiredTables.filter(
-        table => !tableNames.includes(table)
-      );
-
-      if (missingTables.length) {
-        throw new Error(
-          `جداول موردنیاز در دیتابیس پیدا نشدند: ${missingTables.join(', ')}`
-        );
-      }
-    } catch (e) {
-      console.error('QAF SQLite: getTableList خطا:', e);
-      throw new Error(
-        `ساختار دیتابیس صحیح نیست: ${e?.message || String(e)}`
-      );
-    }
-
-    /*
-     * Only now is the database considered ready.
-     */
     state.db = sqlite;
     state.dbReady = true;
 
-    console.log('QAF SQLite: اتصال دیتابیس کاملاً آماده است.');
-
-    /*
-     * Verify all application tables through actual queries.
-     */
+    // Verify the four application tables before rendering any content.
     await dbQuery('SELECT 1 FROM poet LIMIT 1');
     await dbQuery('SELECT 1 FROM cat LIMIT 1');
     await dbQuery('SELECT 1 FROM poem LIMIT 1');
     await dbQuery('SELECT 1 FROM verse LIMIT 1');
-
-    const poetCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM poet'))[0]?.cnt ?? 0;
-
-    const poemCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM poem'))[0]?.cnt ?? 0;
-
-    const verseCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM verse'))[0]?.cnt ?? 0;
-
+    const poetCount = (await dbQuery('SELECT COUNT(*) AS cnt FROM poet'))[0]?.cnt ?? 0;
+    const poemCount = (await dbQuery('SELECT COUNT(*) AS cnt FROM poem'))[0]?.cnt ?? 0;
+    const verseCount = (await dbQuery('SELECT COUNT(*) AS cnt FROM verse'))[0]?.cnt ?? 0;
     const sub = $('topbarSubtext');
-
-    if (sub) {
-      sub.innerText =
-        `سخنوران ${faNum(poetCount)} • اشعار ${faNum(poemCount)} • ابیات ${faNum(verseCount)}`;
-    }
-
-    console.log(
-      `QAF SQLite: ${poetCount} poets, ${poemCount} poems, ${verseCount} verses`
-    );
+    if (sub) sub.innerText = `سخنوران ${faNum(poetCount)} • اشعار ${faNum(poemCount)} • ابیات ${faNum(verseCount)}`;
 
     await loadHome();
     await populateGlobalFilters();
