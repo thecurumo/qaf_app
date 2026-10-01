@@ -1,0 +1,29 @@
+name: Build Debug APK
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: capacitor-app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: capacitor-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx cap sync android
+      - run: chmod +x android/gradlew && ./android/gradlew -p android assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaf-debug-apk
+          path: capacitor-app/android/app/build/outputs/apk/debug/app-debug.apk

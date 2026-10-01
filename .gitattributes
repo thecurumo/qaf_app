@@ -1,1 +1,1 @@
-*.gz filter=lfs diff=lfs merge=lfs -text
+capacitor-app/www/assets/databases/*.gz filter=lfs diff=lfs merge=lfs -text

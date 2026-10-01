@@ -3,6 +3,7 @@
  <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+  <meta content="#FAF9F6" name="theme-color"/>
   <title>
    قاف — آرشیو ادبیات پارسی
   </title>
@@ -20,12 +21,12 @@
 
         :root {
             /* Palette - LIGHT MODE */
-            --vellum: #FBF9F3;       /* بوم اصلی - کاغذ استخوانی نفیس */
-            --chalk: #F4F2EB;        /* پاپیروس کارت‌ها */
-            --tab-active-bg: #EDE9DE;
+            --vellum: #FAF9F6;       /* بوم اصلی - کاغذ استخوانی نفیس */
+            --chalk: #F4F2ED;        /* پاپیروس کارت‌ها */
+            --tab-active-bg: #EDEAE2;
             --ink: #1C1C1C;          /* مرکب مشکی اصیل */
-            --gold: #BFA054;         /* طلای زعفرانی کهن */
-            --stone: #8A8D91;        /* سنگ/فولاد خاکستری */
+            --gold: #AD8D2E;         /* طلای زعفرانی کهن */
+            --stone: #8C8983;        /* سنگ/فولاد خاکستری */
             --input-focus-bg: #FFFFFF;
             --overlay-scrim: rgba(20, 19, 18, 0.65);
 
@@ -106,6 +107,92 @@
         }
 
         /* ==========================================================================
+           00.6 INLINE LOADING STATE (used while a view's data is being fetched)
+           ========================================================================== */
+        .qaf-inline-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 36px 16px;
+            color: var(--stone);
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .qaf-inline-loader-spin {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2.5px solid rgba(138, 141, 145, 0.25);
+            border-top-color: var(--gold);
+            animation: qafSpin 0.7s linear infinite;
+        }
+
+        @keyframes qafSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==========================================================================
+           00.5 INITIAL APP LOADING SCREEN
+           ========================================================================== */
+        #appLoadingScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            background-color: var(--vellum);
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #appLoadingScreen.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loading-monogram-ring {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-monogram-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1.5px solid rgba(138, 141, 145, 0.25);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: loadingSpin 0.9s linear infinite;
+        }
+
+        .loading-monogram-glyph {
+            font-family: var(--font-fa);
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        @keyframes loadingSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-status-text {
+            font-size: 12.5px;
+            color: var(--stone);
+            letter-spacing: 0.2px;
+        }
+
+        /* ==========================================================================
            01. UNIFIED SEAMLESS TOP BAR
            ========================================================================== */
         .app-topbar {
@@ -127,6 +214,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 8px;
         }
 
         .topbar-brand-lockup {
@@ -135,14 +223,18 @@
             gap: 10px;
             user-select: none;
             cursor: pointer;
+            min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
         }
 
         .topbar-brand-title {
             font-size: 22px;
             font-weight: 600;
             color: var(--ink);
-            line-height: 1;
-            letter-spacing: -0.5px;
+            line-height: 1.6;
+            letter-spacing: 0;
+            flex-shrink: 0;
         }
 
         .topbar-brand-rule {
@@ -150,6 +242,7 @@
             height: 16px;
             background-color: var(--gold);
             opacity: 0.9;
+            flex-shrink: 0;
         }
 
         .topbar-brand-subtext {
@@ -157,7 +250,12 @@
             font-weight: 300;
             color: var(--stone);
             white-space: nowrap;
-            line-height: 1;
+            line-height: 1.9;
+            padding: 3px 0;
+            letter-spacing: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
         }
 
         .topbar-actions-cluster {
@@ -165,6 +263,7 @@
             align-items: center;
             gap: 4px;
             margin-left: -8px;
+            flex-shrink: 0;
         }
 
         .frameless-action-btn {
@@ -208,6 +307,23 @@
             display: flex;
             flex-direction: column;
             gap: 26px;
+        }
+
+        /* Text selection (press-and-hold to select) is disabled on the
+           app's content and chrome — but deliberately NEVER on html or
+           body themselves. Applying user-select:none to those two root
+           elements is what broke touch-scrolling earlier, so this is
+           scoped only to the containers that hold visible UI. */
+        .page-container, .app-topbar, .nav-drawer, .search-overlay {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        input, textarea, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            user-select: text;
         }
 
         .spa-view {
@@ -258,7 +374,7 @@
             font-size: 16px;
             font-weight: 600;
             color: var(--ink);
-            letter-spacing: -0.2px;
+            letter-spacing: 0;
         }
 
         .archival-header-link {
@@ -426,7 +542,7 @@
             height: 44px;
             min-height: 44px;
             background-color: var(--vellum);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23BFA054' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23AD8D2E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: left 14px center;
             border: 1px solid var(--stone);
@@ -1266,26 +1382,7 @@
             border-top: 2px solid var(--gold);
         }
 
-        .create-list-action-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            height: 36px;
-            padding: 0 12px;
-            background: transparent;
-            border: 1px dashed var(--gold);
-            color: var(--gold);
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            border-radius: 0;
-            flex-shrink: 0;
-        }
-
-        .create-list-action-chip:active { background: rgba(191, 160, 84, 0.08); }
-
-        .bookmarks-list-stream, .history-list-stream, .results-cards-list {
+        .bookmarks-list-stream, .history-list-stream, .results-cards-list, .poems-flat-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -1465,40 +1562,38 @@
             background: var(--vellum);
         }
 
-        .backup-minimal-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .backup-minimal-btn {
-            display: inline-flex;
+        /* ==========================================================================
+           09. CRYPTO DONATION CARDS & GITHUB LINK (ABOUT PAGE)
+           ========================================================================== */
+        .about-link-card {
+            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            background: var(--chalk);
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: var(--vellum);
             border: 1px solid var(--stone);
             color: var(--ink);
-            height: 40px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            border-radius: 0;
-            text-align: center;
+            text-decoration: none;
+            transition: border-color 0.2s ease;
         }
-
-        .backup-minimal-btn:active {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: var(--vellum);
-            transform: scale(0.98);
+        .about-link-card:active { border-color: var(--gold); }
+        .about-link-title { font-size: 13.5px; font-weight: 600; }
+        .about-link-url {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--stone);
+            direction: ltr;
+            text-align: left;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
+        .about-link-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .about-link-card svg { color: var(--gold); flex-shrink: 0; }
 
-        /* ==========================================================================
-           09. CRYPTO DONATION CARDS (ABOUT PAGE)
-           ========================================================================== */
         .crypto-wallets-list {
             display: flex;
             flex-direction: column;
@@ -1506,34 +1601,19 @@
         }
 
         .crypto-unit-card {
-            background: var(--chalk);
+            background: var(--vellum);
             border: 1px solid var(--stone);
-            border-top: 2px solid var(--gold);
             padding: 14px 16px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .crypto-unit-card:hover, .crypto-unit-card:active {
-            border-color: var(--gold);
-            background: var(--input-focus-bg);
         }
 
         .crypto-unit-header {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             justify-content: space-between;
-            font-size: 11px;
-            color: var(--stone);
-            border-bottom: 0.5px dotted rgba(138, 141, 145, 0.3);
-            padding-bottom: 6px;
-        }
-
-        .crypto-network-badge {
-            color: var(--gold);
-            font-weight: 600;
+            gap: 10px;
         }
 
         .crypto-name-title {
@@ -1542,44 +1622,56 @@
             color: var(--ink);
         }
 
+        .crypto-network-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--gold);
+            direction: ltr;
+        }
+
         .crypto-address-box {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--vellum);
-            border: 1px solid var(--stone);
-            padding: 8px 12px;
+            flex-direction: column;
             gap: 10px;
         }
 
         .crypto-address-text {
+            display: block;
             font-family: var(--font-mono);
             font-size: 11.5px;
+            line-height: 1.8;
             color: var(--ink);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
             direction: ltr;
             text-align: left;
+            word-break: break-all;
+            overflow-wrap: anywhere;
             user-select: all;
+            background: var(--chalk);
+            border: 1px solid rgba(140, 137, 131, 0.45);
+            padding: 8px 10px;
         }
 
         .crypto-copy-btn {
+            min-height: 38px;
             background: transparent;
-            border: none;
+            border: 1px solid var(--gold);
             color: var(--gold);
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 600;
             font-family: var(--font-fa);
-            flex-shrink: 0;
-            transition: opacity 0.15s ease;
+            transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .crypto-copy-btn:active { opacity: 0.6; }
+        .crypto-copy-btn:active { background: var(--gold); color: var(--vellum); }
+
+        .crypto-note {
+            margin-top: 12px;
+            font-size: 11.5px;
+            font-weight: 300;
+            line-height: 1.9;
+            color: var(--stone);
+        }
 
         /* ==========================================================================
            10. VISUAL COLOPHON (لنگر پایانی حرف ق)
@@ -1983,10 +2075,46 @@
             border-color: var(--gold);
             color: var(--gold);
         }
+  
+/* QAF native-first refinement */
+html:not([data-theme="dark"]){--vellum:#FAF9F6;--chalk:#F4F2ED;--tab-active-bg:#EDEAE2;--ink:#1C1C1C;--gold:#AD8D2E;--stone:#8C8983;--input-focus-bg:#FFFFFF;--overlay-scrim:rgba(20,19,18,.65);--grain-opacity:0;}
+html,body{scrollbar-width:none;overscroll-behavior-y:none;} html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}.paper-grain{display:none!important}.archival-section-header{border-bottom:none!important;padding-bottom:0!important;margin-bottom:10px}.spa-view{animation:pageEnter .18s cubic-bezier(.2,.7,.2,1)}@keyframes pageEnter{from{opacity:.35;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}button,.qaf-custom-select,.bookmark-unit-card,.poem-flat-card,.work-card,.poet-card{touch-action:manipulation}
+#appLoadingScreen{background:var(--vellum);gap:0}.loading-monogram-ring{width:112px;height:84px}.loading-monogram-ring::before{display:none}.loading-monogram-glyph{display:none}.loading-app-logo{width:92px;height:70px;animation:qafBreath 1.8s ease-in-out infinite;filter:drop-shadow(0 5px 12px rgba(28,27,27,.10))}.loading-app-logo polygon{fill:var(--gold);stroke:#1C1B1B}@keyframes qafBreath{0%,100%{transform:scale(.94);opacity:.82}50%{transform:scale(1);opacity:1}}
+.qaf-select-wrap{position:relative;width:100%}.qaf-select-wrap>.archival-select{position:absolute;inset:0;opacity:0;pointer-events:none;width:100%}.qaf-custom-select{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--vellum);border:1px solid var(--stone);color:var(--ink);padding:0 12px;cursor:pointer;transition:border-color .16s ease,background-color .16s ease,transform .12s ease}.qaf-custom-select.is-open,.qaf-custom-select:active{border-color:var(--gold);background:var(--input-focus-bg)}.qaf-custom-select:active{transform:scale(.995)}.qaf-custom-select-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.qaf-custom-select-chevron{flex:0 0 auto;color:var(--gold);font-size:12px;transition:transform .16s ease}.qaf-custom-select.is-open .qaf-custom-select-chevron{transform:rotate(180deg)}.qaf-select-menu{position:fixed;z-index:10050;display:none;max-height:min(52vh,360px);overflow:auto;background:var(--chalk);border:1px solid var(--stone);box-shadow:0 14px 36px rgba(0,0,0,.16);padding:6px}.qaf-select-menu.is-open{display:block}.qaf-select-option{min-height:42px;display:flex;align-items:center;padding:0 12px;color:var(--ink);font-size:13px;cursor:pointer}.qaf-select-option+.qaf-select-option{border-top:1px solid rgba(119,113,104,.16)}.qaf-select-option.is-selected{color:var(--gold);background:var(--tab-active-bg);font-weight:600}.qaf-select-backdrop{position:fixed;inset:0;z-index:10040;display:none;background:transparent}.qaf-select-backdrop.is-open{display:block}
+
+.archival-section-header{margin-bottom:18px!important}.archival-section-header h1,.archival-section-header h2{margin-bottom:4px!important}.spa-view{will-change:opacity,transform}.spa-view.active-view{animation:pageEnter .2s cubic-bezier(.22,.72,.2,1)}button:not(:disabled):active{transform:scale(.985)}
+.search-result-card,.bookmark-unit-card{border-radius:0}.bookmark-unit-card{cursor:pointer}.bookmark-unit-header{border-bottom:0;padding-bottom:0}.bookmark-unit-sub{line-height:1.8}.bookmark-unit-footer{margin-top:2px}
+.search-overlay-sheet{position:fixed;inset:0;margin:0;width:100%;height:100dvh;max-height:none;border-top:0;padding:calc(18px + var(--safe-top)) 0 calc(28px + var(--safe-bottom));transform:translateY(16px);transition:transform .22s cubic-bezier(.2,.7,.2,1)}.search-overlay.is-open .search-overlay-sheet{transform:translateY(0)}.search-overlay-inner{height:100%;max-width:720px;overflow:auto;padding:0 16px 20px;gap:16px}.sheet-header-row{padding-bottom:4px}.global-search-box{min-height:52px}.global-search-input{font-size:16px}.qaf-backup-native-note{font-size:10.5px;color:var(--stone);line-height:1.7;margin-top:2px}.backup-minimal-btn{min-height:44px}
+.poet-icon-bookmark-btn svg,.work-icon-bookmark-btn svg,.poem-tool-btn svg{pointer-events:none}.poet-icon-bookmark-btn svg,.work-icon-bookmark-btn svg,.verse-action-link-btn svg,.poem-tool-btn svg{display:block;width:15px;height:15px}.poet-icon-bookmark-btn.is-bookmarked svg path,.work-icon-bookmark-btn.is-bookmarked svg path,.verse-action-link-btn.is-active svg path,.poem-tool-btn.is-active svg path{fill:currentColor;stroke:currentColor}.bookmark-action-link{transition:transform .16s ease}.bookmark-unit-card:active .bookmark-action-link{transform:translateX(-2px)}
+
+/* QAF stability pass */
+html,body,#appRoot,.page-container,.spa-view,.tab-panel,.bookmarks-list-stream,.history-list-stream,.results-cards-list,.poems-flat-list{min-width:0;max-width:100%;}
+body{overflow-x:hidden!important;}
+.spa-view{will-change:auto;}
+.archival-section-header{margin-bottom:14px!important;}
+.archival-section-header + *{margin-top:0!important;}
+.bookmarks-list-stream,.history-list-stream{width:100%;overflow-x:hidden;}
+.history-item-row,.bookmark-unit-card,.search-result-card{width:100%;min-width:0;}
+.categories-scroll-row{max-width:100%;width:100%;overflow-x:auto;overflow-y:hidden;}
+.search-overlay{overscroll-behavior:contain;}
+.qaf-select-backdrop{pointer-events:none;}
+.qaf-select-menu{pointer-events:auto;}
+
+
   </style>
  </head>
  <body>
   <div class="paper-grain">
+  </div>
+  <!-- ============================================================
+         00.5 INITIAL APP LOADING SCREEN
+         ============================================================ -->
+  <div class="loading-screen-mask" id="appLoadingScreen" aria-hidden="false">
+   <div class="loading-monogram-ring">
+    <svg class="loading-app-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" aria-hidden="true">
+     <polygon points="110,300 280,130 400,250 520,130 690,300 520,470 400,350 280,470" fill="#AD8D2E" stroke="#1C1C1C" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+   </div>
   </div>
   <!-- ============================================================
          01. UNIFIED SEAMLESS TOP BAR
@@ -2103,15 +2231,6 @@
              VIEW 2: POETS DIRECTORY (دانشنامه سخنوران)
              ======================================================== -->
    <div class="spa-view" id="view-poets">
-    <div class="archival-section-header">
-     <div class="archival-header-title-wrap">
-      <div class="archival-rhombus-icon">
-      </div>
-      <h1>
-       دانشنامه سخنوران
-      </h1>
-     </div>
-    </div>
     <section class="search-console-plaque">
      <div class="console-main-search-box">
       <svg class="console-search-icon" fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
@@ -2131,6 +2250,9 @@
         <option value="">
          همه قرون تاریخی
         </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
+        </option>
        </select>
       </div>
       <div class="filter-field-group">
@@ -2140,6 +2262,9 @@
        <select class="archival-select" id="poetCityFilter" onchange="loadPoets(true)">
         <option value="">
          همه شهرها
+        </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
         </option>
        </select>
       </div>
@@ -2203,7 +2328,7 @@
        </h1>
        <button aria-label="نشان کردن سخنور" class="poet-icon-bookmark-btn" id="poetBookmarkBtn" onclick="togglePoetBookmark(this)" type="button">
         <svg fill="none" height="15" stroke="currentColor" viewbox="0 0 24 24" width="15" xmlns="http://www.w3.org/2000/svg">
-         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z">
+         <path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h9A1.5 1.5 0 0 1 18 3.5V21l-6-4-6 4V3.5Z">
          </path>
         </svg>
        </button>
@@ -2240,33 +2365,11 @@
      <div class="poet-works-grid" id="poetWorksGrid">
      </div>
     </section>
-    <section>
-     <div class="archival-section-header">
-      <div class="archival-header-title-wrap">
-       <div class="archival-rhombus-icon">
-       </div>
-       <h2>
-        گزیده آثار
-       </h2>
-      </div>
-     </div>
-     <div class="featured-verses-list" id="poetFeaturedPoems">
-     </div>
-    </section>
    </div>
    <!-- ========================================================
              VIEW 4: WORKS DIRECTORY (گنجینه آثار و دیوان‌ها)
              ======================================================== -->
    <div class="spa-view" id="view-works">
-    <div class="archival-section-header">
-     <div class="archival-header-title-wrap">
-      <div class="archival-rhombus-icon">
-      </div>
-      <h1>
-       گنجینه آثار و دیوان‌ها
-      </h1>
-     </div>
-    </div>
     <section class="search-console-plaque">
      <div class="console-main-search-box">
       <svg class="console-search-icon" fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
@@ -2286,6 +2389,9 @@
         <option value="">
          همه سخنوران
         </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
+        </option>
        </select>
       </div>
       <div class="filter-field-group">
@@ -2295,6 +2401,9 @@
        <select class="archival-select" id="workCenturyFilter" onchange="loadWorks(true)">
         <option value="">
          همه قرون تاریخی
+        </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
         </option>
        </select>
       </div>
@@ -2353,12 +2462,10 @@
        <h1 class="work-grand-title" id="hierWorkTitle">
         —
        </h1>
-       <span class="work-author-link" id="hierWorkAuthor" onclick="openCurrentWorkAuthor()">
-       </span>
       </div>
       <button aria-label="نشان کردن اثر" class="work-icon-bookmark-btn" id="workHierarchicalBookmarkBtn" onclick="toggleWorkBookmarkFromButton(this)" type="button">
        <svg fill="none" height="15" stroke="currentColor" viewbox="0 0 24 24" width="15" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 21l-7-5-7-5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z">
+        <path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h9A1.5 1.5 0 0 1 18 3.5V21l-6-4-6 4V3.5Z">
         </path>
        </svg>
       </button>
@@ -2366,7 +2473,7 @@
      <div class="work-linear-metadata" id="hierWorkMetadata">
      </div>
     </section>
-    <section>
+    <section id="workChildrenSection">
      <div class="archival-section-header">
       <div class="archival-header-title-wrap">
        <div class="archival-rhombus-icon">
@@ -2379,43 +2486,7 @@
      <div class="subsections-grid" id="workChildrenGrid">
      </div>
     </section>
-    <section>
-     <div class="archival-section-header">
-      <div class="archival-header-title-wrap">
-       <div class="archival-rhombus-icon">
-       </div>
-       <h2>
-        اشعار این اثر
-       </h2>
-      </div>
-     </div>
-     <div class="poet-works-grid" id="hierWorkPoemsGrid">
-     </div>
-    </section>
-   </div>
-   <!-- ========================================================
-             ======================================================== -->
-   <div class="spa-view" id="view-work-flat">
-    <section class="work-identity-plaque">
-     <div class="work-title-header-row">
-      <div class="work-main-title-group">
-       <h1 class="work-grand-title" id="flatWorkTitle">
-        —
-       </h1>
-       <span class="work-author-link" id="flatWorkAuthor" onclick="openCurrentWorkAuthor()">
-       </span>
-      </div>
-      <button aria-label="نشان کردن اثر" class="work-icon-bookmark-btn" id="workFlatBookmarkBtn" onclick="toggleWorkBookmarkFromButton(this)" type="button">
-       <svg fill="none" height="15" stroke="currentColor" viewbox="0 0 24 24" width="15" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 0-2-2h10a2 2 0 0 0 2 2z">
-        </path>
-       </svg>
-      </button>
-     </div>
-     <div class="work-linear-metadata" id="flatWorkMetadata">
-     </div>
-    </section>
-    <section class="inwork-search-section">
+    <section class="inwork-search-section" id="workPoemsSearchSection">
      <div class="inwork-search-box">
       <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
        <circle cx="11" cy="11" r="8">
@@ -2423,23 +2494,23 @@
        <line x1="21" x2="16.65" y1="21" y2="16.65">
        </line>
       </svg>
-      <input class="inwork-search-input" id="flatSearchInput" oninput="filterFlatPoemsLive()" placeholder="جستجو در اشعار این اثر..." type="text"/>
+      <input class="inwork-search-input" id="flatSearchInput" oninput="filterFlatPoemsLive()" placeholder="جستجو در این اثر..." type="text"/>
      </div>
     </section>
-    <section>
+    <section id="workPoemsSection">
      <div class="archival-section-header">
       <div class="archival-header-title-wrap">
        <div class="archival-rhombus-icon">
        </div>
        <h2>
-        فهرست اشعار و غزلیات
+        فهرست محتوا
        </h2>
       </div>
      </div>
      <div class="poems-flat-list" id="flatPoemsList">
      </div>
     </section>
-    <div class="load-more-container">
+    <div class="load-more-container" id="workPoemsLoadMoreContainer">
      <button class="archival-load-more-btn" id="flatPoemsLoadMoreBtn" onclick="loadFlatPoems(false)" type="button">
       نمایش بیشتر
      </button>
@@ -2480,7 +2551,7 @@
       </button>
       <button aria-label="نشان کردن شعر" class="poem-tool-btn" id="poemBookmarkBtn" onclick="togglePoemBookmark(this)" type="button">
        <svg fill="none" height="14" stroke="currentColor" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 0-2-2h10a2 2 0 0 2 2v16z">
+        <path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h9A1.5 1.5 0 0 1 18 3.5V21l-6-4-6 4V3.5Z">
         </path>
        </svg>
       </button>
@@ -2545,8 +2616,11 @@
         <option value="works">
          آثار و دیوان‌ها
         </option>
+        <option value="poems">
+         اشعار
+        </option>
         <option value="verses">
-         ابیات و اشعار
+         ابیات و مصراع‌ها
         </option>
        </select>
       </div>
@@ -2558,6 +2632,9 @@
         <option value="">
          همه سخنوران
         </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
+        </option>
        </select>
       </div>
       <div class="filter-field-group">
@@ -2567,6 +2644,9 @@
        <select class="archival-select" id="centurySelect" onchange="performLiveFilter()">
         <option value="">
          همه قرون تاریخی
+        </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
         </option>
        </select>
       </div>
@@ -2617,6 +2697,22 @@
        موردی در بخش آثار و دیوان‌ها یافت نشد.
       </div>
      </section>
+     <section class="result-group-section" id="poemsResultSection">
+      <div class="archival-section-header">
+       <div class="archival-header-title-wrap">
+        <div class="archival-rhombus-icon">
+        </div>
+        <h2>
+         اشعار مرتبط
+        </h2>
+       </div>
+      </div>
+      <div class="results-cards-list" id="poemsGridResults">
+      </div>
+      <div class="empty-results-box" id="poemsEmptyMsg" style="display:none;padding:16px;">
+       موردی در بخش اشعار یافت نشد.
+      </div>
+     </section>
      <section class="result-group-section" id="versesResultSection">
       <div class="archival-section-header">
        <div class="archival-header-title-wrap">
@@ -2639,15 +2735,6 @@
              VIEW 9: PROFILE / BOOKMARKS & HISTORY (بایگانی و نشان‌ها)
              ======================================================== -->
    <div class="spa-view" id="view-profile">
-    <div class="archival-section-header">
-     <div class="archival-header-title-wrap">
-      <div class="archival-rhombus-icon">
-      </div>
-      <h1>
-       بایگانی و نشان‌ها
-      </h1>
-     </div>
-    </div>
     <nav class="workspace-tabs-bar">
      <button class="workspace-tab-btn active" onclick="switchMainTab('bookmarks',this)" type="button">
       <span>
@@ -2667,26 +2754,28 @@
         همه نشان‌ها
        </span>
       </button>
-      <button class="create-list-action-chip" onclick="openCreateListModal()" type="button">
+      <button class="collection-chip" data-category="poet" onclick="filterByCollection('poet',this)" type="button">
        <span>
-        + لیست تازه
+        سخنوران
+       </span>
+      </button>
+      <button class="collection-chip" data-category="work" onclick="filterByCollection('work',this)" type="button">
+       <span>
+        آثار
+       </span>
+      </button>
+      <button class="collection-chip" data-category="poem" onclick="filterByCollection('poem',this)" type="button">
+       <span>
+        اشعار
+       </span>
+      </button>
+      <button class="collection-chip" data-category="verse" onclick="filterByCollection('verse',this)" type="button">
+       <span>
+        ابیات
        </span>
       </button>
      </div>
      <div class="bookmarks-list-stream" id="bookmarksUnitsList">
-     </div>
-     <div class="backup-minimal-row">
-      <button class="backup-minimal-btn" onclick="exportDataBackup()" type="button">
-       <span>
-        دریافت پشتیبان (JSON)
-       </span>
-      </button>
-      <label class="backup-minimal-btn" style="cursor:pointer;">
-       <span>
-        بازیابی پشتیبان
-       </span>
-       <input accept=".json" id="importFileInput" onchange="importDataBackup(event)" style="display:none;" type="file"/>
-      </label>
      </div>
     </section>
     <section class="tab-panel" id="tabPanelHistory">
@@ -2704,35 +2793,36 @@
              ======================================================== -->
    <div class="spa-view" id="view-about">
     <section>
-     <div class="archival-section-header">
-      <div class="archival-header-title-wrap">
-       <div class="archival-rhombus-icon">
-       </div>
-       <h1>
-        درباره قاف
-       </h1>
-      </div>
-     </div>
      <div class="archival-text-card">
-      <p class="archival-card-prose">
-       «قاف» آرشیوی مینیمال، مستقل و ساختاریافته از گنجینه ادبیات و شعر پارسی است؛ با تمرکز بر خوانایی متون، ساختار آثار و جستجو در یک آرشیو آفلاین.
-      </p>
+      <p class="archival-card-prose">«قاف» تلاشی کوچک برای نزدیک ماندن به شعر و نثر پارسی است؛ جایی برای جست‌وجو، خواندن و دوباره بازگشتن به کلمات. قاف کاملاً رایگان و آفلاین ساخته شده تا این گنجینه، بی‌نیاز از اینترنت، همیشه در دسترس بماند.</p>
      </div>
     </section>
     <section>
-     <div class="archival-section-header">
-      <div class="archival-header-title-wrap">
-       <div class="archival-rhombus-icon">
-       </div>
-       <h2>
-        قدردانی و سرچشمه داده‌ها
-       </h2>
-      </div>
-     </div>
+     <div class="archival-section-header"><div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>قدردانی و سرچشمه داده‌ها</h2></div></div>
      <div class="archival-text-card">
-      <p class="archival-card-prose">
-       پایگاه داده این برنامه بر داده‌های آرشیو گنجور تکیه دارد. نام‌ها، آثار و متن شعرها در خود پایگاه داده محلی برنامه نگهداری می‌شوند و رابط کاربری اطلاعات ادبی را به‌صورت ساختاریافته از SQLite می‌خواند.
-      </p>
+      <p class="archival-card-prose">بخشی مهم از جانِ قاف را مدیون «گنجور» هستیم. پایگاه داده مرجع این برنامه از داده‌های ارائه‌شده و آرشیوشده توسط گنجور بهره می‌برد؛ برای فراهم کردن چنین مجموعه گسترده‌ای از نام‌ها، آثار و متن‌های ادبی، صمیمانه سپاسگزاریم. قاف تنها کوششی است برای آوردن این داده‌ها به تجربه‌ای آفلاین، ساده و آرام برای خواندن و جست‌وجو.</p>
+     </div>
+    </section>
+    <section>
+     <div class="archival-section-header"><div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>قاف در گیت‌هاب</h2></div></div>
+     <div class="archival-text-card">
+      <p class="archival-card-prose">برای دیدن روند توسعه، گزارش مشکل یا پیشنهاد، به صفحهٔ پروژه در گیت‌هاب سر بزنید.</p>
+      <a class="about-link-card" href="https://github.com/thecurumo/qaf_app" target="_blank" rel="noopener noreferrer">
+       <span class="about-link-meta"><span class="about-link-title">صفحهٔ قاف در گیت‌هاب</span><span class="about-link-url">github.com/thecurumo/qaf_app</span></span>
+       <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </a>
+     </div>
+    </section>
+    <section>
+     <div class="archival-section-header"><div class="archival-header-title-wrap"><div class="archival-rhombus-icon"></div><h2>همراهی و پشتیبانی</h2></div></div>
+     <div class="archival-text-card">
+      <p class="archival-card-prose">قاف برای همه رایگان است و خواهد ماند. اگر این آرشیو برایتان سودمند بوده و مایلید در ادامه راه همراهش باشید، می‌توانید با کمک مالی به نگهداری، توسعه و بهبود آن کمک کنید. حتی همراهی کوچک شما سهمی در زنده ماندن این کتابخانه دیجیتال دارد.</p>
+      <div class="crypto-wallets-list" style="margin-top:16px;">
+       <div class="crypto-unit-card"><div class="crypto-unit-header"><span class="crypto-name-title">بیت‌کوین</span><span class="crypto-network-badge">Bitcoin</span></div><div class="crypto-address-box"><span class="crypto-address-text" data-wallet="BTC">bc1qrnvvpama90mdqq0wwu4lt4kvysn2a3hrz9r78x</span><button class="crypto-copy-btn" type="button" onclick="copyWalletAddress(this,'BTC')">کپی</button></div></div>
+       <div class="crypto-unit-card"><div class="crypto-unit-header"><span class="crypto-name-title">اتریوم</span><span class="crypto-network-badge">Ethereum</span></div><div class="crypto-address-box"><span class="crypto-address-text" data-wallet="ETH">0xaED94D75DCb56ABb6F2F0F1985C562B4906AB8C8</span><button class="crypto-copy-btn" type="button" onclick="copyWalletAddress(this,'ETH')">کپی</button></div></div>
+       <div class="crypto-unit-card"><div class="crypto-unit-header"><span class="crypto-name-title">تتر</span><span class="crypto-network-badge">TRC-20 (TRON)</span></div><div class="crypto-address-box"><span class="crypto-address-text" data-wallet="USDT">TEo2cA196v6S8vJ59szadmgaLMagHPpShJ</span><button class="crypto-copy-btn" type="button" onclick="copyWalletAddress(this,'USDT')">کپی</button></div></div>
+      </div>
+      <p class="crypto-note">تتر را فقط از طریق شبکهٔ TRC-20 (ترون) ارسال کنید.</p>
      </div>
     </section>
    </div>
@@ -2901,11 +2991,14 @@
         <option value="poets">
          سخنوران
         </option>
-        <option value="verses">
-         ابیات و اشعار
-        </option>
         <option value="works">
          آثار و دیوان‌ها
+        </option>
+        <option value="poems">
+         اشعار
+        </option>
+        <option value="verses">
+         ابیات و مصراع‌ها
         </option>
        </select>
       </div>
@@ -2917,6 +3010,9 @@
         <option value="">
          همه سخنوران
         </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
+        </option>
        </select>
       </div>
       <div class="filter-field-group">
@@ -2926,6 +3022,9 @@
        <select class="archival-select" id="globalCenturyFilter">
         <option value="">
          همه قرون تاریخی
+        </option>
+        <option disabled value="__loading__">
+         در حال بارگذاری...
         </option>
        </select>
       </div>
@@ -2949,28 +3048,6 @@
     </div>
    </div>
   </div>
-  <!-- MODAL: CREATE CUSTOM LIST -->
-  <div class="modal-backdrop" id="createListModal">
-   <div class="modal-box">
-    <div class="modal-header">
-     <span class="modal-title">
-      ساخت لیست سفارشی
-     </span>
-     <button class="modal-close-btn" onclick="closeCreateListModal()" type="button">
-      ✕
-     </button>
-    </div>
-    <div class="modal-field-group">
-     <label>
-      عنوان لیست یا مجموعه:
-     </label>
-     <input class="modal-input" id="newListName" placeholder="مثال: غزلیات ناب سبک هندی..." type="text"/>
-    </div>
-    <button class="modal-save-btn" onclick="saveNewList()" type="button">
-     ذخیره لیست
-    </button>
-   </div>
-  </div>
   <!-- ============================================================
          13. JAVASCRIPT LOGIC & SPA ROUTER
          ============================================================ -->
@@ -2979,6 +3056,8 @@
   'use strict';
 
   const DB_NAME = 'qaf';
+  // Bump this string whenever you ship a NEW database file inside the app.
+  const DB_ASSET_VERSION = '1';
   const PAGE_SIZE = 60;
   const state = {
     db: null,
@@ -2993,8 +3072,7 @@
     flatPoemOffset: 0,
     searchTimer: null,
     poetSearchTimer: null,
-    workSearchTimer: null,
-    customLists: JSON.parse(localStorage.getItem('qaf_custom_lists') || '[]')
+    workSearchTimer: null
   };
 
   const $ = id => document.getElementById(id);
@@ -3004,13 +3082,25 @@
   }[ch]));
   const num = value => Number.isFinite(Number(value)) ? Number(value) : null;
   const faNum = value => value == null || value === '' ? '—' : String(value).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-  const normalize = value => String(value ?? '').trim().toLowerCase();
+  const normalize = value => String(value ?? '').trim().toLowerCase().replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[‌‍]/g,' ').replace(/\s+/g,' ');
 
   function emptyState(title, sub) {
     return `<div class="empty-state-box">${ICON_BOOKMARK}<span class="empty-state-title">${esc(title)}</span><span class="empty-state-sub">${esc(sub)}</span></div>`;
   }
 
-  const ICON_BOOKMARK = '<span class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></span>';
+  // Small reusable inline loading placeholder shown inside a container while
+  // its data is being fetched from the database, so the user never sees an
+  // empty box or a previous page's leftover content while waiting.
+  function inlineLoader(label){
+    return `<div class="qaf-inline-loader"><div class="qaf-inline-loader-spin"></div><span>${esc(label||'در حال بارگذاری...')}</span></div>`;
+  }
+  function showLoader(id,label){ const el=$(id); if(el) el.innerHTML=inlineLoader(label); }
+
+  const ICON_BOOKMARK = '<span class="empty-state-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h9A1.5 1.5 0 0 1 18 3.5V21l-6-4-6 4V3.5Z"></path></svg></span>';
+
+  const ICON_SVG_BOOKMARK = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3.5A1.5 1.5 0 0 1 7.5 2h9A1.5 1.5 0 0 1 18 3.5V21l-6-4-6 4V3.5Z"></path></svg>';
+  const ICON_SVG_COPY = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+  const ICON_SVG_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   async function dbQuery(statement, values = []) {
     if (!state.dbReady || !state.db) throw new Error('پایگاه داده هنوز آماده نیست.');
@@ -3036,9 +3126,15 @@
     try {
       console.log('QAF SQLite: copyFromAssets شروع شد');
 
+      // Copy the bundled DB only on first run or when DB_ASSET_VERSION is
+      // bumped (new database shipped in an app update). Copying a large
+      // file on every launch slowed startup for no benefit.
+      let installedVer = null;
+      try { installedVer = localStorage.getItem('qaf_db_asset_version'); } catch {}
       await sqlite.copyFromAssets({
-        overwrite: true
+        overwrite: installedVer !== DB_ASSET_VERSION
       });
+      try { localStorage.setItem('qaf_db_asset_version', DB_ASSET_VERSION); } catch {}
 
       console.log('QAF SQLite: copyFromAssets موفق بود');
     } catch (e) {
@@ -3208,34 +3304,15 @@
     await dbQuery('SELECT 1 FROM poem LIMIT 1');
     await dbQuery('SELECT 1 FROM verse LIMIT 1');
 
-    const poetCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM poet'))[0]?.cnt ?? 0;
-
-    const poemCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM poem'))[0]?.cnt ?? 0;
-
-    const verseCount =
-      (await dbQuery('SELECT COUNT(*) AS cnt FROM verse'))[0]?.cnt ?? 0;
-
-    const sub = $('topbarSubtext');
-
-    if (sub) {
-      sub.innerText =
-        `سخنوران ${faNum(poetCount)} • اشعار ${faNum(poemCount)} • ابیات ${faNum(verseCount)}`;
-    }
-
-    console.log(
-      `QAF SQLite: ${poetCount} poets, ${poemCount} poems, ${verseCount} verses`
-    );
+    console.log('QAF SQLite: جداول موردنیاز با موفقیت بررسی شدند.');
 
     await loadHome();
-    await populateGlobalFilters();
   }
 
   function setDbError(error) {
     console.error('QAF SQLite:', error);
-    const sub = $('topbarSubtext');
-    if (sub) sub.innerText = 'خطا در اتصال پایگاه داده';
+    const statusText = $('loadingStatusText');
+    if (statusText) statusText.innerText = 'خطا در اتصال پایگاه داده';
     const home = $('recentReadingContent');
     if (home) home.innerHTML = emptyState('پایگاه داده در دسترس نیست', error?.message || 'اتصال به SQLite انجام نشد.');
   }
@@ -3244,14 +3321,31 @@
     return parts.filter(Boolean).map(x => `<div class="metadata-unit">${x}</div>`).join('<div class="metadata-divider"></div>');
   }
 
-  function poetAvatar(name) {
+  // Poets can have a portrait photo bundled with the app at
+  // poet-images/<poet id>.webp (e.g. poet-images/2.webp for Hafez). Not
+  // every poet has one — for the rest we fall back to the first letter of
+  // their name, exactly as before. Rather than maintaining a hardcoded list
+  // of which poet ids have a photo (which would need updating every time a
+  // photo is added or removed), the <img> is simply attempted for every
+  // poet and quietly replaced with the letter fallback via onerror if the
+  // file doesn't exist — so adding/removing photos later needs no code change.
+  function poetAvatarFallback(name) {
     return esc(String(name || '—').trim().charAt(0) || '•');
+  }
+  function poetAvatar(id, name) {
+    const letter = poetAvatarFallback(name);
+    const safeName = esc(name || '');
+    // The fallback letter is inlined into an inline JS string (inside the
+    // onerror attribute), not HTML text, so it needs JS-string escaping
+    // (backslash + quote), not esc()'s HTML-entity escaping.
+    const letterForJs = letter.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `<img src="poet-images/${Number(id)}.webp" alt="${safeName}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${letterForJs}'}))">`;
   }
 
   function poetCard(p) {
-    const yearText = p.birth_year || p.death_year ? `${faNum(p.birth_year)} — ${faNum(p.death_year)}` : '—';
+    const yearText = p.birth_year || p.death_year ? `${faNum(p.birth_year)} — ${faNum(p.death_year)} هـ.ق` : '—';
     return `<div class="poet-card" data-name="${esc(p.name)}" data-year="${esc(p.birth_year ?? '')}" onclick="navigateTo('view-poet-detail',{poetId:${Number(p.id)}})">
-      <div class="poet-avatar">${poetAvatar(p.name)}</div>
+      <div class="poet-avatar">${poetAvatar(p.id, p.name)}</div>
       <div class="poet-name">${esc(p.name)}</div>
       <div class="poet-dates">${yearText}</div>
       <div class="poet-geo-meta"><div class="geo-item"><span class="geo-label">زادگاه</span><span class="geo-val">${esc(p.birthplace || '—')}</span></div><div class="geo-divider"></div><div class="geo-item"><span class="geo-label">آرامگاه</span><span class="geo-val">${esc(p.deathplace || '—')}</span></div></div>
@@ -3267,78 +3361,92 @@
     </div>`;
   }
 
-  async function loadHome() {
+  const FEATURED_POET_IDS = [2,3,4,5,6,7,9,12];
+  const FEATURED_WORK_CAT_IDS = [33,98,103,119,123,1665,156,255];
+
+  async function loadHome(token=qafRouteToken) {
     if (!state.dbReady) return;
-    const poets = await dbQuery(`SELECT id,name,cat_id,description,century_id,birth_year,death_year,birthplace,deathplace FROM poet ORDER BY COALESCE(birth_year,999999), name LIMIT 8`);
+    showLoader('homePoetsGrid','در حال بارگذاری...');
+    showLoader('homeWorksGrid','در حال بارگذاری...');
+    const poetPlaceholders = FEATURED_POET_IDS.map(()=>'?').join(',');
+    const workPlaceholders = FEATURED_WORK_CAT_IDS.map(()=>'?').join(',');
+    const [poetsRaw, worksRaw] = await Promise.all([
+      dbQuery(`SELECT id,name,cat_id,description,century_id,birth_year,death_year,birthplace,deathplace FROM poet WHERE id IN (${poetPlaceholders})`, FEATURED_POET_IDS),
+      dbQuery(`
+        SELECT c.id AS cat_id,c.text AS title,p.name AS poet_name,p.birth_year,p.birthplace,p.century_id,c.parent_id
+        FROM cat c JOIN poet p ON p.id=c.poet_id
+        WHERE c.id IN (${workPlaceholders})`, FEATURED_WORK_CAT_IDS)
+    ]);
+    if (token !== qafRouteToken) return;
+
+    const poetsById = new Map(poetsRaw.map(p => [Number(p.id), p]));
+    const poets = FEATURED_POET_IDS.map(id => poetsById.get(id)).filter(Boolean);
     const pgrid = $('homePoetsGrid');
     if (pgrid) pgrid.innerHTML = poets.map(poetCard).join('') || emptyState('سخنوری ثبت نشده است','پایگاه داده سخنوری ندارد.');
 
-    const works = await dbQuery(`
-      SELECT c.id AS cat_id,c.text AS title,p.name AS poet_name,p.birth_year,p.birthplace,c.parent_id
-      FROM cat c JOIN poet p ON p.id=c.poet_id
-      WHERE NOT EXISTS (SELECT 1 FROM cat child WHERE child.parent_id=c.id)
-      ORDER BY COALESCE(p.birth_year,999999), c.id LIMIT 8`);
+    const worksById = new Map(worksRaw.map(w => [Number(w.cat_id), w]));
+    const works = FEATURED_WORK_CAT_IDS.map(id => worksById.get(id)).filter(Boolean);
     const wgrid = $('homeWorksGrid');
     if (wgrid) wgrid.innerHTML = works.map(workCard).join('') || emptyState('اثری ثبت نشده است','پایگاه داده اثری ندارد.');
 
     renderRecentReading();
   }
 
-  function navigateTo(viewId, params = {}) {
-    document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active-view'));
-    const target = $(viewId);
-    if (!target) return;
-    target.classList.add('active-view');
-    state.currentView = viewId;
-    window.scrollTo({top:0, behavior:'smooth'});
 
-    const sub = $('topbarSubtext');
-    const labels = {
-      'view-home':'آرشیو ادبیات پارسی','view-poets':'دانشنامه سخنوران','view-works':'گنجینه آثار و دیوان‌ها',
-      'view-poet-detail':'اطلاعات سخنور','view-work-hierarchical':'اطلاعات اثر','view-work-flat':'اطلاعات اثر',
-      'view-poem-reader':'خوانش شعر','view-search':'نتایج جستجو','view-profile':'بایگانی و نشان‌ها','view-about':'درباره قاف'
-    };
-    if (sub) sub.innerText = labels[viewId] || 'آرشیو ادبیات پارسی';
+  let qafRouteToken = 0;
+  let qafSearchToken = 0;
+  function currentRouteToken(){ return qafRouteToken; }
 
-    document.querySelectorAll('.drawer-nav-item').forEach(el => el.classList.remove('active'));
-    const navMap = {'view-home':'navItem-home','view-poets':'navItem-poets','view-works':'navItem-works','view-profile':'navItem-profile','view-about':'navItem-about'};
-    if (navMap[viewId]) $(navMap[viewId])?.classList.add('active');
-
-    if (!state.dbReady) return;
-
-    if (viewId === 'view-home') loadHome();
-    if (viewId === 'view-poets') loadPoets(true);
-    if (viewId === 'view-works') loadWorks(true);
-    if (viewId === 'view-poet-detail' && params.poetId != null) loadPoetDetail(Number(params.poetId));
-    if ((viewId === 'view-work-flat' || viewId === 'view-work-hierarchical') && params.catId != null) loadWork(Number(params.catId), viewId === 'view-work-flat');
-    if (viewId === 'view-poem-reader' && params.poemId != null) loadPoem(Number(params.poemId));
-    if (viewId === 'view-search') {
-      if (params.query != null) $('searchResultsInput').value = params.query;
-      populateGlobalFilters().then(performLiveFilter);
+  function navigateTo(viewId, params={}, options={}) {
+    const target=$(viewId); if(!target)return; const route={view:viewId,params:params||{}};
+    const token=++qafRouteToken;
+    if(!options.fromHistory){const cur=history.state?.qafRoute;if(!cur||cur.view!==route.view||JSON.stringify(cur.params||{})!==JSON.stringify(route.params)) history.pushState({qafRoute:route,qafDepth:(history.state?.qafDepth||0)+1},'',location.href.split('#')[0]+'#'+encodeURIComponent(viewId)+'?'+encodeURIComponent(JSON.stringify(params||{})));}
+    document.querySelectorAll('.spa-view').forEach(v=>v.classList.remove('active-view'));target.classList.add('active-view');state.currentView=viewId;
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    closeDrawer(); closeGlobalSearch();
+    const labels={'view-home':'آرشیو ادبیات پارسی','view-poets':'دانشنامه سخنوران','view-works':'گنجینه آثار و دیوان‌ها','view-poet-detail':'اطلاعات سخنور','view-work-hierarchical':'اطلاعات اثر','view-poem-reader':'خوانش اثر','view-search':'نتایج جستجو','view-profile':'بایگانی و نشان‌ها','view-about':'درباره قاف'};if($('topbarSubtext'))$('topbarSubtext').innerText=labels[viewId]||labels['view-home'];
+    document.querySelectorAll('.drawer-nav-item').forEach(el=>el.classList.remove('active'));const navMap={'view-home':'navItem-home','view-poets':'navItem-poets','view-works':'navItem-works','view-profile':'navItem-profile','view-about':'navItem-about'};if(navMap[viewId])$(navMap[viewId])?.classList.add('active');
+    if(!state.dbReady)return;
+    if(viewId==='view-home')loadHome(token);
+    if(viewId==='view-poets'){loadPoets(true,token);ensureFilterOptionsLoaded();}
+    if(viewId==='view-works'){loadWorks(true,token);ensureFilterOptionsLoaded();}
+    if(viewId==='view-poet-detail'&&params.poetId!=null)loadPoetDetail(Number(params.poetId),token);
+    if(viewId==='view-work-hierarchical'&&params.catId!=null)loadWork(Number(params.catId),token);
+    if(viewId==='view-poem-reader'&&params.poemId!=null)loadPoem(Number(params.poemId),token);
+    if(viewId==='view-search'){
+      if(params.query!=null&&$('searchResultsInput'))$('searchResultsInput').value=params.query;
+      if(params.scope!=null&&$('scopeSelect'))$('scopeSelect').value=params.scope;
+      if(params.poetId!=null&&$('poetSelect'))$('poetSelect').value=String(params.poetId);
+      if(params.century!=null&&$('centurySelect'))$('centurySelect').value=String(params.century);
+      // Run the actual search right away — it doesn't need the dropdown
+      // option lists to be populated first. The dropdowns fill in parallel,
+      // and once they do, the search re-runs only if the person's selection
+      // (from params) actually depends on those now-available options.
+      performLiveFilter(token);
+      ensureFilterOptionsLoaded().then(()=>{if(token!==qafRouteToken)return;refreshCustomSelects();});
     }
-    if (viewId === 'view-profile') {
-      renderBookmarks(); renderReadingHistory();
-      if (params.tab) {
-        const btn = document.querySelectorAll('.workspace-tab-btn')[params.tab === 'history' ? 1 : 0];
-        if (btn) switchMainTab(params.tab, btn);
-      }
-    }
+    if(viewId==='view-profile'){renderBookmarks();renderReadingHistory();renderRecentReading();}
+    closeCustomSelect();
   }
 
-  async function loadPoets(reset = false) {
+  async function loadPoets(reset = false, token=qafRouteToken) {
     if (!state.dbReady) return;
-    if (reset) state.poetOffset = 0;
-    const q = normalize($('poetSearchInput')?.value);
+    if (reset) { state.poetOffset = 0; showLoader('poetsGrid','در حال بارگذاری سخنوران...'); }
+    const q = parseQuery($('poetSearchInput')?.value);
     const century = $('poetCenturyFilter')?.value || '';
-    const city = $('poetCityFilter')?.value || '';
+    const city = normalize($('poetCityFilter')?.value || '');
     const sort = $('poetSortFilter')?.value || 'historical-asc';
     const where = [], values = [];
-    if (q) { where.push('(LOWER(name) LIKE ? OR LOWER(COALESCE(description,\'\')) LIKE ?)'); values.push(`%${q}%`,`%${q}%`); }
-    if (century) { where.push('CAST(century_id AS TEXT)=?'); values.push(century); }
-    if (city) { where.push('(COALESCE(birthplace,\'\') LIKE ? OR COALESCE(deathplace,\'\') LIKE ?)'); values.push(`%${city}%`,`%${city}%`); }
-    const order = sort === 'alphabetical' ? 'name COLLATE NOCASE ASC' : sort === 'historical-desc' ? 'COALESCE(birth_year,-1) DESC,name' : 'COALESCE(birth_year,999999) ASC,name';
+    const nName = "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(name,'ي','ی'),'ى','ی'),'ك','ک'),CHAR(8204),' '))";
+    if (q.tokens.length) tokenWhere(q, ['name', "COALESCE(birthplace,'')"], where, values);
+    if (century) { if (century === '__other__') where.push('century_id IS NULL'); else { where.push('CAST(century_id AS TEXT)=?'); values.push(century); } }
+    if (city) { where.push(`(LOWER(COALESCE(birthplace,'')) LIKE ? OR LOWER(COALESCE(deathplace,'')) LIKE ?)`); values.push(`%${city}%`,`%${city}%`); }
+    const rk = q.tokens.length ? rankExpr('name', q) : null; const rank = rk ? rk.sql : null;
+    const order = rank ? `${rank}, name COLLATE NOCASE ASC` : (sort === 'alphabetical' ? 'name COLLATE NOCASE ASC' : sort === 'historical-desc' ? 'COALESCE(birth_year,-1) DESC,name' : 'COALESCE(birth_year,999999) ASC,name');
     const sql = `SELECT id,name,cat_id,description,century_id,birth_year,death_year,birthplace,deathplace FROM poet ${where.length?'WHERE '+where.join(' AND '):''} ORDER BY ${order} LIMIT ${PAGE_SIZE} OFFSET ${state.poetOffset}`;
-    const data = await dbQuery(sql, values);
+    const rankVals = rk ? rk.vals : [];
+    const data = await dbQuery(sql, [...values, ...rankVals]);
+    if (token !== qafRouteToken) return;
     const grid = $('poetsGrid');
     if (reset && grid) grid.innerHTML = '';
     if (grid) grid.insertAdjacentHTML('beforeend', data.map(poetCard).join(''));
@@ -3346,21 +3454,25 @@
     if ($('poetsEmptyBox')) $('poetsEmptyBox').style.display = (!grid || !grid.children.length) ? 'flex' : 'none';
     if ($('poetsLoadMoreBtn')) $('poetsLoadMoreBtn').style.display = data.length === PAGE_SIZE ? 'inline-flex' : 'none';
   }
-
-  async function loadWorks(reset = false) {
-    if (!state.dbReady) return;
-    if (reset) state.workOffset = 0;
-    const q = normalize($('workSearchInput')?.value);
+  async function loadWorks(reset = false, token=qafRouteToken) {
+    if (!state.dbReady || token!==qafRouteToken) return;
+    if (reset) { state.workOffset = 0; showLoader('worksGrid','در حال بارگذاری آثار...'); }
+    const q = parseQuery($('workSearchInput')?.value);
     const poet = $('workPoetFilter')?.value || '';
     const century = $('workCenturyFilter')?.value || '';
     const sort = $('workSortFilter')?.value || 'historical-asc';
     const where = [], values = [];
-    if (q) { where.push('(LOWER(c.text) LIKE ? OR LOWER(COALESCE(p.name,\'\')) LIKE ?)'); values.push(`%${q}%`,`%${q}%`); }
+    const nTitle = "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(c.text,'ي','ی'),'ى','ی'),'ك','ک'),CHAR(8204),' '))";
+    const nPoet = "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(p.name,'ي','ی'),'ى','ی'),'ك','ک'),CHAR(8204),' '))";
+    if (q.tokens.length) tokenWhere(q, ['c.text', 'p.name'], where, values);
     if (poet) { where.push('p.id=?'); values.push(poet); }
-    if (century) { where.push('CAST(p.century_id AS TEXT)=?'); values.push(century); }
-    const order = sort === 'alphabetical' ? 'c.text COLLATE NOCASE ASC' : sort === 'historical-desc' ? 'COALESCE(p.birth_year,-1) DESC,c.id' : 'COALESCE(p.birth_year,999999) ASC,c.id';
-    const sql = `SELECT c.id AS cat_id,c.text AS title,p.name AS poet_name,p.birth_year,p.birthplace,p.century_id FROM cat c JOIN poet p ON p.id=c.poet_id ${where.length?'WHERE '+where.join(' AND '):''} ORDER BY ${order} LIMIT ${PAGE_SIZE} OFFSET ${state.workOffset}`;
-    const data = await dbQuery(sql, values);
+    if (century) { if (century === '__other__') where.push('p.century_id IS NULL'); else { where.push('CAST(p.century_id AS TEXT)=?'); values.push(century); } }
+    const rk = q.tokens.length ? workRank(q) : null; const rank = rk ? rk.sql : null;
+    const order = rank ? `${rank}, c.text COLLATE NOCASE ASC` : (sort === 'alphabetical' ? 'c.text COLLATE NOCASE ASC' : sort === 'historical-desc' ? 'COALESCE(p.birth_year,-1) DESC,c.id' : 'COALESCE(p.birth_year,999999) ASC,c.id');
+    const sql = `SELECT c.id AS cat_id,c.text AS title,p.name AS poet_name,p.birth_year,p.birthplace,p.century_id FROM cat c JOIN poet p ON p.id=c.poet_id JOIN cat root ON root.id=c.parent_id AND root.parent_id=0 ${where.length?'WHERE '+where.join(' AND '):''} ORDER BY ${order} LIMIT ${PAGE_SIZE} OFFSET ${state.workOffset}`;
+    const rankVals = rk ? rk.vals : [];
+    const data = await dbQuery(sql, [...values, ...rankVals]);
+    if (token !== qafRouteToken) return;
     const grid = $('worksGrid');
     if (reset && grid) grid.innerHTML = '';
     if (grid) grid.insertAdjacentHTML('beforeend', data.map(workCard).join(''));
@@ -3368,55 +3480,111 @@
     if ($('worksEmptyBox')) $('worksEmptyBox').style.display = (!grid || !grid.children.length) ? 'flex' : 'none';
     if ($('worksLoadMoreBtn')) $('worksLoadMoreBtn').style.display = data.length === PAGE_SIZE ? 'inline-flex' : 'none';
   }
-
-  async function populateDirectoryFilters() {
-    const centuries = await dbQuery('SELECT DISTINCT century_id FROM poet WHERE century_id IS NOT NULL ORDER BY century_id');
-    const cities = await dbQuery(`SELECT DISTINCT birthplace FROM poet WHERE birthplace IS NOT NULL AND TRIM(birthplace)<>'' ORDER BY birthplace`);
-    const poetCent = $('poetCenturyFilter');
-    const poetCity = $('poetCityFilter');
-    if (poetCent && poetCent.options.length <= 1) centuries.forEach(x => poetCent.insertAdjacentHTML('beforeend', `<option value="${esc(x.century_id)}">قرن ${faNum(x.century_id)} هـ.ق</option>`));
-    if (poetCity && poetCity.options.length <= 1) cities.forEach(x => poetCity.insertAdjacentHTML('beforeend', `<option value="${esc(x.birthplace)}">${esc(x.birthplace)}</option>`));
+  // ==========================================================================
+  // FILTER OPTIONS CACHE
+  // The lists behind the poet / century / city dropdowns rarely change during
+  // a session (they come straight from the offline database), so they are
+  // fetched once per app run and reused everywhere instead of being
+  // re-queried — and re-shown as an empty "loading" state — on every visit
+  // to a page that has one of these filters.
+  // ==========================================================================
+  let qafFilterOptionsPromise = null;
+  function getFilterOptions() {
+    if (!qafFilterOptionsPromise) {
+      qafFilterOptionsPromise = (async () => {
+        const [poets, centuries, cities] = await Promise.all([
+          dbQuery('SELECT id,name FROM poet ORDER BY name COLLATE NOCASE'),
+          dbQuery('SELECT DISTINCT century_id FROM poet WHERE century_id IS NOT NULL ORDER BY CAST(century_id AS INTEGER) ASC'),
+          dbQuery(`SELECT DISTINCT birthplace FROM poet WHERE birthplace IS NOT NULL AND TRIM(birthplace)<>'' ORDER BY birthplace`)
+        ]);
+        return {
+          poets,
+          centuries: centuries.map(r => Number(r.century_id)).filter(Number.isFinite),
+          cities: cities.map(r => r.birthplace)
+        };
+      })().catch(e => { qafFilterOptionsPromise = null; throw e; });
+    }
+    return qafFilterOptionsPromise;
   }
 
-  async function populateGlobalFilters() {
+  function fillSelectOptions(sel, optionsHtml) {
+    if (!sel) return;
+    const current = sel.value;
+    const base = sel.options[0]?.outerHTML || '<option value=""></option>';
+    sel.innerHTML = base + optionsHtml;
+    if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  }
+
+  function centuryOptionsHtml(centuries) {
+    return centuries.map(c => `<option value="${c}">قرن ${faNum(c)} هـ.ق</option>`).join('') + '<option value="__other__">دوره معاصر و سایر</option>';
+  }
+  function poetOptionsHtml(poets) {
+    return poets.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  }
+  function cityOptionsHtml(cities) {
+    return cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  }
+
+  // Populates every filter <select> that draws from the poet/century/city
+  // lists, in one pass, from the cache above (fetching it once if needed).
+  // Safe to call as often as needed — repeat calls are effectively free.
+  async function ensureFilterOptionsLoaded() {
     if (!state.dbReady) return;
-    const poets = await dbQuery('SELECT id,name FROM poet ORDER BY name COLLATE NOCASE');
-    const centuries = await dbQuery('SELECT DISTINCT century_id FROM poet WHERE century_id IS NOT NULL ORDER BY century_id');
-    const targets = [$('poetSelect'), $('globalPoetFilter')].filter(Boolean);
-    targets.forEach(sel => {
-      if (sel.options.length > 1) return;
-      poets.forEach(p => sel.insertAdjacentHTML('beforeend', `<option value="${esc(p.id)}">${esc(p.name)}</option>`));
-    });
-    const c = $('centurySelect');
-    if (c && c.options.length <= 1) centuries.forEach(x => c.insertAdjacentHTML('beforeend', `<option value="${esc(x.century_id)}">قرن ${faNum(x.century_id)} هـ.ق</option>`));
-    await populateDirectoryFilters();
-    const wp = $('workPoetFilter');
-    const wc = $('workCenturyFilter');
-    if (wp && wp.options.length <= 1) poets.forEach(p => wp.insertAdjacentHTML('beforeend', `<option value="${esc(p.id)}">${esc(p.name)}</option>`));
-    if (wc && wc.options.length <= 1) centuries.forEach(x => wc.insertAdjacentHTML('beforeend', `<option value="${esc(x.century_id)}">قرن ${faNum(x.century_id)} هـ.ق</option>`));
+    const { poets, centuries, cities } = await getFilterOptions();
+    const poetHtml = poetOptionsHtml(poets);
+    const centuryHtml = centuryOptionsHtml(centuries);
+    const cityHtml = cityOptionsHtml(cities);
+    [$('poetSelect'), $('globalPoetFilter'), $('workPoetFilter')].forEach(sel => fillSelectOptions(sel, poetHtml));
+    [$('centurySelect'), $('globalCenturyFilter'), $('workCenturyFilter'), $('poetCenturyFilter')].forEach(sel => fillSelectOptions(sel, centuryHtml));
+    fillSelectOptions($('poetCityFilter'), cityHtml);
+    refreshCustomSelects();
   }
 
-  async function loadPoetDetail(id) {
+  // Kept for compatibility with any older call sites; both now resolve
+  // through the shared cache above instead of issuing their own queries.
+  async function populateCenturyOptions(selectIds) { await ensureFilterOptionsLoaded(); }
+  async function populateDirectoryFilters() { await ensureFilterOptionsLoaded(); }
+  async function populateGlobalFilters() { await ensureFilterOptionsLoaded(); }
+
+  let qafSelectMenu=null, qafSelectBackdrop=null;
+  function closeCustomSelect(){document.querySelectorAll('.qaf-custom-select.is-open').forEach(x=>x.classList.remove('is-open'));qafSelectMenu?.classList.remove('is-open');qafSelectBackdrop?.classList.remove('is-open');}
+  function positionCustomMenu(trigger){if(!qafSelectMenu)return;const r=trigger.getBoundingClientRect(),w=Math.min(Math.max(r.width,220),window.innerWidth-16),h=Math.min(360,window.innerHeight*.52),left=Math.max(8,Math.min(r.left,window.innerWidth-w-8)),top=r.bottom+h<=window.innerHeight-8?r.bottom+6:Math.max(8,r.top-h-6);qafSelectMenu.style.width=w+'px';qafSelectMenu.style.left=left+'px';qafSelectMenu.style.top=top+'px';}
+  function enhanceSelect(select){if(!select||select.dataset.qafEnhanced==='1')return;select.dataset.qafEnhanced='1';const wrap=document.createElement('div');wrap.className='qaf-select-wrap';select.parentNode.insertBefore(wrap,select);wrap.appendChild(select);const trigger=document.createElement('button');trigger.type='button';trigger.className='qaf-custom-select';trigger.setAttribute('aria-haspopup','listbox');const label=document.createElement('span');label.className='qaf-custom-select-label';const chev=document.createElement('span');chev.className='qaf-custom-select-chevron';chev.textContent='⌄';trigger.append(label,chev);wrap.appendChild(trigger);if(!qafSelectMenu){qafSelectMenu=document.createElement('div');qafSelectMenu.className='qaf-select-menu';qafSelectMenu.setAttribute('role','listbox');document.body.appendChild(qafSelectMenu);}if(!qafSelectBackdrop){qafSelectBackdrop=document.createElement('div');qafSelectBackdrop.className='qaf-select-backdrop';document.body.appendChild(qafSelectBackdrop);qafSelectBackdrop.onclick=closeCustomSelect;}const refresh=()=>{const o=select.options[select.selectedIndex];label.textContent=o?.textContent?.trim()||'';qafSelectMenu.querySelectorAll('[data-owner="'+select.id+'"]').forEach(x=>x.classList.toggle('is-selected',x.dataset.value===select.value));};const rebuild=()=>{qafSelectMenu.innerHTML='';Array.from(select.options).forEach(o=>{const item=document.createElement('div');item.className='qaf-select-option';item.dataset.owner=select.id;item.dataset.value=o.value;item.textContent=o.textContent.trim();item.setAttribute('role','option');item.onclick=()=>{select.value=o.value;select.dispatchEvent(new Event('change',{bubbles:true}));refresh();closeCustomSelect();};qafSelectMenu.appendChild(item);});refresh();};trigger.onclick=()=>{if(trigger.classList.contains('is-open')){closeCustomSelect();return;}closeCustomSelect();rebuild();trigger.classList.add('is-open');qafSelectMenu.classList.add('is-open');qafSelectBackdrop.classList.add('is-open');positionCustomMenu(trigger);};select.addEventListener('change',refresh);select._qafRebuild=rebuild;select._qafRefresh=refresh;rebuild();}
+  function refreshCustomSelects(){document.querySelectorAll('select.archival-select').forEach(enhanceSelect);document.querySelectorAll('select.archival-select').forEach(sel=>{sel._qafRebuild?.();sel._qafRefresh?.();});}
+  window.addEventListener('resize',()=>{const x=document.querySelector('.qaf-custom-select.is-open');if(x)positionCustomMenu(x);});window.addEventListener('scroll',()=>{const x=document.querySelector('.qaf-custom-select.is-open');if(x)positionCustomMenu(x);},true);
+
+  async function loadPoetDetail(id, token=qafRouteToken) {
+    // Clear the previous poet's content immediately and show a loader, so a
+    // page navigated away from never lingers on screen while the next
+    // poet's data is being fetched.
+    $('poetDetailName').innerText = '';
+    $('poetDetailAvatar').innerHTML = '';
+    $('poetDetailDescription').innerText = '';
+    $('poetDetailMetadata').innerHTML = '';
+    showLoader('poetWorksGrid','در حال بارگذاری آثار...');
     const p = (await dbQuery('SELECT id,name,cat_id,description,century_id,birth_year,death_year,birthplace,deathplace FROM poet WHERE id=? LIMIT 1',[id]))[0];
+    if (token!==qafRouteToken) return;
     if (!p) return;
     state.currentPoet = p;
     $('poetDetailName').innerText = p.name || '—';
-    $('poetDetailAvatar').innerText = poetAvatar(p.name);
+    $('poetDetailAvatar').innerHTML = poetAvatar(p.id, p.name);
     $('poetDetailDescription').innerText = p.description || 'شرح احوال برای این سخنور در پایگاه داده ثبت نشده است.';
     $('poetDetailMetadata').innerHTML = metadata([
       `<span class="metadata-label">قرن:</span><span class="metadata-val">${esc(p.century_id != null ? `قرن ${faNum(p.century_id)} هـ.ق` : '—')}</span>`,
-      `<span class="metadata-label">گاه‌شمار:</span><span class="metadata-val">${esc((p.birth_year || p.death_year) ? `${faNum(p.birth_year)} — ${faNum(p.death_year)}` : '—')}</span>`,
+      `<span class="metadata-label">گاه‌شمار:</span><span class="metadata-val">${esc((p.birth_year || p.death_year) ? `${faNum(p.birth_year)} — ${faNum(p.death_year)} هـ.ق` : '—')}</span>`,
       `<span class="metadata-label">زادگاه:</span><span class="metadata-val">${esc(p.birthplace || '—')}</span>`,
       `<span class="metadata-label">آرامگاه:</span><span class="metadata-val">${esc(p.deathplace || '—')}</span>`
     ]);
     const bm = $('poetBookmarkBtn');
     if (bm) bm.classList.toggle('is-bookmarked', getBookmarks('poet').some(x => String(x.id) === String(id)));
 
-    const cats = await dbQuery('SELECT id,text,parent_id FROM cat WHERE poet_id=? ORDER BY id',[id]);
+    const cats = await dbQuery(`
+      SELECT c.id,c.text,c.parent_id
+      FROM cat c
+      WHERE c.parent_id = (SELECT r.id FROM cat r WHERE r.poet_id=? AND r.parent_id=0 LIMIT 1)
+      ORDER BY c.id`,[id]);
+    if (token!==qafRouteToken) return;
     $('poetWorksGrid').innerHTML = cats.map(c => `<div class="poet-work-item-card" onclick="navigateTo('view-work-hierarchical',{catId:${Number(c.id)}})"><div class="poet-work-item-title">${esc(c.text)}</div><div class="poet-work-item-footer"><span>مشاهده اثر</span><span>←</span></div></div>`).join('') || emptyState('اثری ثبت نشده است','برای این سخنور اثری در پایگاه داده یافت نشد.');
-
-    const featured = await dbQuery(`SELECT po.id AS poem_id,po.title,po.cat_id,c.text AS cat_title FROM poem po JOIN cat c ON c.id=po.cat_id WHERE c.poet_id=? ORDER BY po.id LIMIT 6`,[id]);
-    $('poetFeaturedPoems').innerHTML = featured.map(poemCard).join('') || emptyState('شعری ثبت نشده است','برای این سخنور شعری یافت نشد.');
   }
 
   function poemCard(p) {
@@ -3427,8 +3595,12 @@
     </div>`;
   }
 
-  async function loadWork(catId, flat) {
+  async function loadWork(catId, token=qafRouteToken) {
+    $('hierWorkTitle').innerText = '';
+    $('hierWorkMetadata').innerHTML = '';
+    showLoader('workChildrenGrid','در حال بارگذاری...');
     const cat = (await dbQuery(`SELECT c.id,c.text,c.parent_id,c.url,p.id AS poet_id,p.name AS poet_name,p.century_id,p.birthplace,p.birth_year FROM cat c JOIN poet p ON p.id=c.poet_id WHERE c.id=? LIMIT 1`,[catId]))[0];
+    if (token!==qafRouteToken) return;
     if (!cat) return;
     state.currentCat = cat;
     const title = cat.text || '—';
@@ -3437,35 +3609,53 @@
       `<span class="metadata-label">قرن:</span><span class="metadata-val">${esc(cat.century_id != null ? `قرن ${faNum(cat.century_id)} هـ.ق` : '—')}</span>`,
       `<span class="metadata-label">محل:</span><span class="metadata-val">${esc(cat.birthplace || '—')}</span>`
     ]);
-    if (flat) {
-      $('flatWorkTitle').innerText = title; $('flatWorkAuthor').innerText = cat.poet_name || '';
-      $('flatWorkMetadata').innerHTML = meta;
-      $('flatWorkAuthor').onclick = () => navigateTo('view-poet-detail',{poetId:cat.poet_id});
-      await loadFlatPoems(true);
+    $('hierWorkTitle').innerText = title;
+    $('hierWorkMetadata').innerHTML = meta;
+    setWorkBookmarkButton('workHierarchicalBookmarkBtn', cat.id);
+
+    const children = await dbQuery('SELECT id,text,parent_id FROM cat WHERE parent_id=? ORDER BY id',[catId]);
+    if (token!==qafRouteToken) return;
+    const hasChildren = children.length > 0;
+
+    const childrenSection = $('workChildrenSection');
+    const searchSection = $('workPoemsSearchSection');
+    const poemsSection = $('workPoemsSection');
+    const loadMoreContainer = $('workPoemsLoadMoreContainer');
+
+    if (hasChildren) {
+      if (childrenSection) childrenSection.style.display = '';
+      if (searchSection) searchSection.style.display = 'none';
+      if (poemsSection) poemsSection.style.display = 'none';
+      if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+      $('workChildrenGrid').innerHTML = children.map(c => `<div class="subsection-card" onclick="navigateTo('view-work-hierarchical',{catId:${Number(c.id)}})"><div class="subsection-title">${esc(c.text)}</div><div class="subsection-footer"><span>مشاهده بخش</span><span>←</span></div></div>`).join('');
     } else {
-      $('hierWorkTitle').innerText = title; $('hierWorkAuthor').innerText = cat.poet_name || '';
-      $('hierWorkMetadata').innerHTML = meta;
-      $('hierWorkAuthor').onclick = () => navigateTo('view-poet-detail',{poetId:cat.poet_id});
-      const children = await dbQuery('SELECT id,text,parent_id FROM cat WHERE parent_id=? ORDER BY id',[catId]);
-      $('workChildrenGrid').innerHTML = children.map(c => `<div class="subsection-card" onclick="navigateTo('view-work-flat',{catId:${Number(c.id)}})"><div class="subsection-title">${esc(c.text)}</div><div class="subsection-footer"><span>مشاهده بخش</span><span>←</span></div></div>`).join('') || emptyState('بخش فرعی ثبت نشده است','این سطح از ساختار اثر بخش فرعی ندارد.');
-      const poems = await dbQuery(`SELECT po.id AS poem_id,po.title,c.text AS cat_title,p.name AS poet_name FROM poem po JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE (po.cat_id=? OR c.parent_id=?) ORDER BY po.id LIMIT ${PAGE_SIZE}`,[catId,catId]);
-      $('hierWorkPoemsGrid').innerHTML = poems.map(poemCard).join('') || emptyState('شعری ثبت نشده است','در این بخش شعری یافت نشد.');
-      setWorkBookmarkButton('workHierarchicalBookmarkBtn', cat.id);
+      if (childrenSection) childrenSection.style.display = 'none';
+      if (searchSection) searchSection.style.display = '';
+      if (poemsSection) poemsSection.style.display = '';
+      if (loadMoreContainer) loadMoreContainer.style.display = '';
+      if ($('flatSearchInput')) $('flatSearchInput').value = '';
+      await loadFlatPoems(true,token);
     }
-    if (flat) setWorkBookmarkButton('workFlatBookmarkBtn', cat.id);
   }
 
-  async function loadFlatPoems(reset = false) {
+  async function loadFlatPoems(reset = false, token=qafRouteToken) {
     if (!state.currentCat) return;
     if (reset) state.flatPoemOffset = 0;
-    const q = normalize($('flatSearchInput')?.value);
+    const q = parseQuery($('flatSearchInput')?.value);
     const values = [state.currentCat.id];
     let where = 'po.cat_id=?';
-    if (q) { where += ' AND (LOWER(po.title) LIKE ? OR EXISTS (SELECT 1 FROM verse v WHERE v.poem_id=po.id AND LOWER(v.text) LIKE ?))'; values.push(`%${q}%`,`%${q}%`); }
+    if (q.tokens.length) {
+      const tw = [], tv = [], vw = [], vv = [];
+      tokenWhere(q, ['po.title'], tw, tv); tokenWhere(q, ['v.text'], vw, vv);
+      where += ` AND (${tw.join(' AND ')} OR EXISTS (SELECT 1 FROM verse v WHERE v.poem_id=po.id AND ${vw.join(' AND ')}))`;
+      values.push(...tv, ...vv);
+    }
+    const flatSeq = ++qafFlatSeq;
     const data = await dbQuery(`SELECT po.id AS poem_id,po.title,c.text AS cat_title,p.name AS poet_name,
       (SELECT GROUP_CONCAT(v.text,' ') FROM verse v WHERE v.poem_id=po.id AND v.vorder=(SELECT MIN(v2.vorder) FROM verse v2 WHERE v2.poem_id=po.id)) AS preview
       FROM poem po JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id
       WHERE ${where} ORDER BY po.id LIMIT ${PAGE_SIZE} OFFSET ${state.flatPoemOffset}`,values);
+    if (token !== qafRouteToken || flatSeq !== qafFlatSeq) return;
     const list = $('flatPoemsList');
     if (reset && list) list.innerHTML = '';
     if (list) list.insertAdjacentHTML('beforeend', data.map(poemCard).join(''));
@@ -3473,21 +3663,32 @@
     if ($('flatPoemsLoadMoreBtn')) $('flatPoemsLoadMoreBtn').style.display = data.length === PAGE_SIZE ? 'inline-flex' : 'none';
   }
 
-  function filterFlatPoemsLive() { loadFlatPoems(true); }
+  let qafFlatSeq = 0, qafFlatTimer = null;
+  function filterFlatPoemsLive() { clearTimeout(qafFlatTimer); qafFlatTimer = setTimeout(() => loadFlatPoems(true), 250); }
 
-  async function loadPoem(poemId) {
+  async function loadPoem(poemId, token=qafRouteToken) {
+    // Clear the previous poem off-screen right away and show a loader in its
+    // place, so switching between poems (from search results, prev/next,
+    // or a poet's list) never shows the earlier poem for a moment first.
+    $('poemMainHeading').innerText = '';
+    $('poemSubAuthor').innerText = '';
+    showLoader('versesContainer','در حال بارگذاری شعر...');
     const poem = (await dbQuery(`SELECT po.id AS poem_id,po.title,po.cat_id,c.text AS cat_title,p.id AS poet_id,p.name AS poet_name,p.century_id,p.birthplace
       FROM poem po JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE po.id=? LIMIT 1`,[poemId]))[0];
+    if (token!==qafRouteToken) return;
     if (!poem) return;
     state.currentPoem = poem;
-    const all = await dbQuery('SELECT id FROM poem WHERE cat_id=? ORDER BY id',[poem.cat_id]);
+    const [all, verses] = await Promise.all([
+      dbQuery('SELECT id FROM poem WHERE cat_id=? ORDER BY id',[poem.cat_id]),
+      dbQuery('SELECT poem_id,vorder,position,text FROM verse WHERE poem_id=? ORDER BY vorder,position',[poemId])
+    ]);
+    if (token!==qafRouteToken) return;
     state.currentPoemIndex = all.findIndex(x => Number(x.id) === Number(poemId));
 
     $('poemMainHeading').innerText = poem.title || '—';
     $('poemSubAuthor').innerText = `${poem.poet_name || ''} • ${poem.cat_title || ''}`;
     $('poemSubAuthor').onclick = () => navigateTo('view-poet-detail',{poetId:poem.poet_id});
 
-    const verses = await dbQuery('SELECT poem_id,vorder,position,text FROM verse WHERE poem_id=? ORDER BY vorder,position',[poemId]);
     const grouped = [];
     const byOrder = new Map();
     verses.forEach(v => {
@@ -3497,14 +3698,16 @@
     });
     byOrder.forEach((items, key) => grouped.push({order:key, items}));
     const container = $('versesContainer');
+    const markedVerses = new Set(getBookmarks('verse').map(x => String(x.id)));
     container.innerHTML = grouped.map((g, i) => {
       const lines = g.items.map(v => `<div class="hemistich-line">${esc(v.text)}</div>`).join('');
       const verseKey = `${poemId}:${g.order}`;
-      const marked = getBookmarks('verse').some(x => String(x.id) === verseKey);
+      const marked = markedVerses.has(verseKey);
       return `<article class="verse-block ${marked?'is-bookmarked':''}" data-verse-id="${esc(verseKey)}">
-        <div class="verse-meta-bar"><span class="verse-number-badge">بیت ${faNum(i+1)}</span>
-          <div class="verse-micro-actions"><button type="button" class="verse-action-link-btn ${marked?'is-active':''}" onclick="toggleVerseBookmark(this,'${esc(verseKey)}')"><span>${marked?'نشان شد':'نشان'}</span></button>
-          <button type="button" class="verse-action-link-btn" onclick="copySingleVerse(this)"><span>کپی</span></button></div>
+        <div class="verse-meta-bar"><span class="verse-number-badge">${faNum(i+1)}</span>
+          <div class="verse-micro-actions">
+          <button type="button" aria-label="نشان کردن بیت" class="verse-action-link-btn ${marked?'is-active':''}" onclick="toggleVerseBookmark(this,'${esc(verseKey)}')">${ICON_SVG_BOOKMARK}</button>
+          <button type="button" aria-label="کپی بیت" class="verse-action-link-btn" onclick="copySingleVerse(this)">${ICON_SVG_COPY}</button></div>
         </div><div class="verse-content-layout">${lines}</div>
       </article>`;
     }).join('') || emptyState('متنی برای این شعر ثبت نشده است','این شعر در پایگاه داده بیتی ندارد.');
@@ -3522,12 +3725,12 @@
     const nextId = i >= 0 && i < all.length - 1 ? Number(all[i+1].id) : null;
     if (prev) {
       prev.classList.toggle('disabled', !prevId);
-      prev.onclick = prevId ? () => loadPoem(prevId) : null;
+      prev.onclick = prevId ? () => navigateTo('view-poem-reader',{poemId:prevId}) : null;
       $('prevPoemLabel').innerText = prevId ? 'شعر قبلی' : 'ابتدای این اثر';
     }
     if (next) {
       next.classList.toggle('disabled', !nextId);
-      next.onclick = nextId ? () => loadPoem(nextId) : null;
+      next.onclick = nextId ? () => navigateTo('view-poem-reader',{poemId:nextId}) : null;
       $('nextPoemLabel').innerText = nextId ? 'شعر بعدی' : 'پایان این اثر';
     }
   }
@@ -3539,82 +3742,304 @@
     if (state.currentCat) navigateTo('view-poet-detail',{poetId:state.currentCat.poet_id});
   }
 
-  async function performLiveFilter() {
-    if (!state.dbReady) return;
-    const query = normalize($('searchResultsInput')?.value);
+  // ==========================================================================
+  // GLOBAL SEARCH ENGINE (rebuilt)
+  //
+  // Design notes:
+  // - A single generation token (qafSearchToken) is bumped on every call.
+  //   Every query result is checked against it before touching the DOM, so a
+  //   fast keystroke can never be overwritten by a slower, older search that
+  //   finishes later out of order.
+  // - All four categories (poets/works/poems/verses) are queried in
+  //   PARALLEL with Promise.all instead of one after another. This is what
+  //   caused the "sometimes fast, sometimes slow" feeling: each category
+  //   used to wait for the previous one to fully finish even though they
+  //   don't depend on each other.
+  // - Results are only written to the page once ALL four queries for this
+  //   generation have resolved, and written together in one pass. Sections
+  //   no longer "pop in" one at a time in a different order each time.
+  // - A loading state is shown the instant a search starts (not after some
+  //   delay), and is only ever replaced once real results are ready — the
+  // page never shows an empty section while data is still in flight.
+  // - A single normalization helper is shared by every query, instead of
+  //   four separately hand-written LIKE/REPLACE expressions, to keep the
+  //   matching behavior identical and easy to change in one place.
+  // ==========================================================================
+
+  const NORM_SQL = col => `LOWER(REPLACE(REPLACE(REPLACE(REPLACE(${col},'ي','ی'),'ى','ی'),'ك','ک'),CHAR(8204),' '))`;
+
+  function buildCenturyClause(where, vals, century, column) {
+    if (!century) return;
+    if (century === '__other__') where.push(`${column} IS NULL`);
+    else { where.push(`CAST(${column} AS TEXT)=?`); vals.push(century); }
+  }
+
+  // ==========================================================================
+  // SMART QUERY ENGINE
+  // - The query is split into words; EVERY word must match (AND), in any order.
+  // - Matching uses GLOB with character classes, so ی/ي/ى, ک/ك, ا/آ/أ/إ,
+  //   Persian/Arabic/Latin digits, ZWNJ/space and Latin case are all treated
+  //   as equal WITHOUT wrapping each row in REPLACE()/LOWER() (much faster).
+  // - Results are ranked: exact > starts-with > word-start > contains.
+  // ==========================================================================
+  const GLOB_GROUPS = ['یيى', 'کك', 'اآأإ'];
+  function globChar(ch) {
+    for (const g of GLOB_GROUPS) if (g.includes(ch)) return '[' + g + ']';
+    const d = '۰۱۲۳۴۵۶۷۸۹'.indexOf(ch), d2 = '٠١٢٣٤٥٦٧٨٩'.indexOf(ch), d3 = '0123456789'.indexOf(ch);
+    const di = d >= 0 ? d : d2 >= 0 ? d2 : d3;
+    if (di >= 0) return '[' + di + '۰۱۲۳۴۵۶۷۸۹'[di] + '٠١٢٣٤٥٦٧٨٩'[di] + ']';
+    const lo = ch.toLowerCase(), up = ch.toUpperCase();
+    if (lo !== up) return '[' + lo + up + ']';
+    return ch;
+  }
+  const globTok = tok => Array.from(tok).map(globChar).join('');
+  function parseQuery(raw) {
+    const phrase = normalize(raw).replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[*?\[\]]/g, ' ').replace(/\s+/g, ' ').trim();
+    return { phrase, tokens: phrase ? phrase.split(' ') : [] };
+  }
+  const SP = '[ \u200c]';
+  function tokenWhere(q, cols, where, vals) {
+    q.tokens.forEach(t => {
+      const p = '*' + globTok(t) + '*';
+      where.push('(' + cols.map(c => c + ' GLOB ?').join(' OR ') + ')');
+      cols.forEach(() => vals.push(p));
+    });
+  }
+  function rankExpr(col, q) {
+    const ph = q.tokens.map(globTok).join(SP);
+    return { sql: `(CASE WHEN ${col} GLOB ? THEN 0 WHEN ${col} GLOB ? THEN 1 WHEN ${col} GLOB ? THEN 2 ELSE 3 END)`, vals: [ph, ph + '*', '*' + SP + ph + '*'] };
+  }
+  function workRank(q) {
+    const a = rankExpr('c.text', q), b = rankExpr('p.name', q);
+    return { sql: `MIN(${a.sql},${b.sql}+1)`, vals: [...a.vals, ...b.vals] };
+  }
+
+  async function searchPoets(q, century, limit=30) {
+    const run = async cols => {
+      const where = [], vals = [];
+      tokenWhere(q, cols, where, vals);
+      buildCenturyClause(where, vals, century, 'century_id');
+      const rk = rankExpr('name', q);
+      return dbQuery(`SELECT id,name,century_id,birthplace,birth_year,death_year,deathplace FROM poet WHERE ${where.join(' AND ')} ORDER BY ${rk.sql},LENGTH(name),name LIMIT ${limit}`, [...vals, ...rk.vals]);
+    };
+    if (!q.tokens.length) {
+      const where = [], vals = [];
+      buildCenturyClause(where, vals, century, 'century_id');
+      return dbQuery(`SELECT id,name,century_id,birthplace,birth_year,death_year,deathplace FROM poet ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY name COLLATE NOCASE LIMIT ${limit}`, vals);
+    }
+    // Poets whose NAME matches come first and alone. Only when no name
+    // matches at all do we fall back to biography / birthplace text, so
+    // searching "سعدی" no longer drags in every poet whose bio mentions him.
+    const byName = await run(['name']);
+    if (byName.length) return byName;
+    return run(["COALESCE(description,'')", "COALESCE(birthplace,'')"]);
+  }
+
+  async function searchWorks(q, poetId, century, limit=30) {
+    const where = [], vals = [];
+    tokenWhere(q, ['c.text', 'p.name'], where, vals);
+    if (poetId) { where.push('p.id=?'); vals.push(poetId); }
+    buildCenturyClause(where, vals, century, 'p.century_id');
+    const rk = q.tokens.length ? workRank(q) : null;
+    return dbQuery(
+      `SELECT c.id AS cat_id,c.text AS title,p.id AS poet_id,p.name AS poet_name,p.century_id,p.birthplace FROM cat c JOIN poet p ON p.id=c.poet_id JOIN cat root ON root.id=c.parent_id AND root.parent_id=0 ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY ${rk ? rk.sql + ',LENGTH(c.text),c.text' : 'c.text COLLATE NOCASE'} LIMIT ${limit}`,
+      [...vals, ...(rk ? rk.vals : [])]
+    );
+  }
+
+  async function searchPoems(q, poetId, century, limit=30) {
+    if (!q.tokens.length && !poetId && !century) return [];
+    const where = [], vals = [];
+    tokenWhere(q, ['po.title'], where, vals);
+    if (poetId) { where.push('p.id=?'); vals.push(poetId); }
+    buildCenturyClause(where, vals, century, 'p.century_id');
+    const rk = q.tokens.length ? rankExpr('po.title', q) : null;
+    return dbQuery(
+      `SELECT po.id AS poem_id,po.title,p.name AS poet_name,c.text AS cat_title,p.century_id FROM poem po JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY ${rk ? rk.sql + ',LENGTH(po.title),po.title' : 'po.id'} LIMIT ${limit}`,
+      [...vals, ...(rk ? rk.vals : [])]
+    );
+  }
+
+  async function searchVerses(q, poetId, century, limit=50) {
+    const has = q.tokens.length > 0;
+    if (!has && !poetId && !century) return [];
+    if (has && q.phrase.length < 2) return [];   // 1-letter query = pointless full scan
+    const where = ['1=1'], vals = [];
+    tokenWhere(q, ['v.text'], where, vals);
+    if (poetId) { where.push('p.id=?'); vals.push(poetId); }
+    buildCenturyClause(where, vals, century, 'p.century_id');
+    // No global ORDER BY for text queries: SQLite can stop scanning as soon
+    // as it has `limit` hits instead of scanning + sorting every match.
+    return dbQuery(
+      `SELECT v.poem_id,v.vorder,v.position,v.text,po.title,p.name AS poet_name,p.id AS poet_id,p.century_id,c.text AS cat_title FROM verse v JOIN poem po ON po.id=v.poem_id JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE ${where.join(' AND ')} ${has ? '' : 'ORDER BY v.poem_id,v.vorder,v.position'} LIMIT ${limit}`,
+      vals
+    );
+  }
+
+  function setSectionVisible(sectionId, visible) {
+    const el = $(sectionId);
+    if (el) el.style.display = visible ? '' : 'none';
+  }
+
+  function renderSearchSection({ gridId, emptyId, sectionId, items, type, scopeVisible }) {
+    setSectionVisible(sectionId, scopeVisible);
+    if (!scopeVisible) return;
+    const grid = $(gridId), emptyEl = $(emptyId);
+    if (grid) grid.innerHTML = items.map(item => searchResultCard(type, item)).join('');
+    if (emptyEl) emptyEl.style.display = items.length ? 'none' : 'block';
+  }
+
+  // A single overall fallback shown only when every category came back
+  // empty at once, so the person isn't left staring at four separate small
+  // "nothing found" boxes with no clear next step.
+  function renderOverallSearchEmptyState(show, hasAnyFilter) {
+    const container = $('resultsStream');
+    if (!container) return;
+    let el = $('searchOverallEmpty');
+    if (!show) { el?.remove(); return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'searchOverallEmpty';
+      el.className = 'empty-results-box';
+      el.style.padding = '32px 16px';
+      el.style.textAlign = 'center';
+      container.appendChild(el);
+    } else {
+      container.appendChild(el); // keep it last in the stream
+    }
+    el.textContent = hasAnyFilter
+      ? 'با این عبارت و فیلترها نتیجه‌ای در آرشیو یافت نشد. عبارت را کوتاه‌تر کنید یا فیلترها را پاک کنید.'
+      : 'برای مشاهده نتایج، عبارتی را جستجو کنید یا از فیلترها استفاده کنید.';
+  }
+
+  function showSearchLoadingState(scope) {
+    const sections = [
+      { sectionId: 'poetsResultSection', gridId: 'poetsGridResults', emptyId: 'poetsEmptyMsg', scopes: ['all', 'poets'] },
+      { sectionId: 'worksResultSection', gridId: 'worksGridResults', emptyId: 'worksEmptyMsg', scopes: ['all', 'works'] },
+      { sectionId: 'poemsResultSection', gridId: 'poemsGridResults', emptyId: 'poemsEmptyMsg', scopes: ['all', 'poems'] },
+      { sectionId: 'versesResultSection', gridId: 'versesGridResults', emptyId: 'versesEmptyMsg', scopes: ['all', 'verses'] }
+    ];
+    $('searchOverallEmpty')?.remove();
+    sections.forEach(s => {
+      const visible = s.scopes.includes(scope);
+      setSectionVisible(s.sectionId, visible);
+      if (!visible) return;
+      const emptyEl = $(s.emptyId);
+      if (emptyEl) emptyEl.style.display = 'none';
+      showLoader(s.gridId, 'در حال جستجو...');
+    });
+  }
+
+  async function performLiveFilter(token=qafRouteToken){
+    if (!state.dbReady || token !== qafRouteToken) return;
+    const searchToken = ++qafSearchToken;
+    const q = parseQuery($('searchResultsInput')?.value);
     const scope = $('scopeSelect')?.value || 'all';
     const poetId = $('poetSelect')?.value || '';
     const century = $('centurySelect')?.value || '';
-    const show = (id, yes) => { const el=$(id); if(el) el.style.display=yes?'flex':'none'; };
-    const empty = (id, yes) => { const el=$(id); if(el) el.style.display=yes?'block':'none'; };
+    const nq = q.tokens.length ? q : null;
 
-    const poetWhere=[], poetVals=[];
-    if(query){ poetWhere.push('(LOWER(name) LIKE ? OR LOWER(COALESCE(description,\'\')) LIKE ?)'); poetVals.push(`%${query}%`,`%${query}%`); }
-    if(century){ poetWhere.push('CAST(century_id AS TEXT)=?'); poetVals.push(century); }
-    const poets = scope==='works'||scope==='verses' ? [] : await dbQuery(`SELECT id,name,century_id,birthplace,birth_year,death_year,deathplace FROM poet ${poetWhere.length?'WHERE '+poetWhere.join(' AND '):''} ORDER BY name LIMIT 30`,poetVals);
-    $('poetsGridResults').innerHTML = poets.map(p=>`<div class="bookmark-unit-card" data-name="${esc(p.name)}" onclick="navigateTo('view-poet-detail',{poetId:${Number(p.id)}})"><div class="bookmark-unit-header"><span class="bookmark-type-badge">سخنور</span></div><div><div class="bookmark-unit-title">${esc(p.name)}</div><div class="bookmark-unit-sub">${esc(p.birthplace||'')} • ${esc(p.century_id!=null?`قرن ${faNum(p.century_id)} هـ.ق`:'')}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">مشاهده ←</span></div></div>`).join('');
-    show('poetsResultSection', scope==='all'||scope==='poets'); empty('poetsEmptyMsg', poets.length===0 && (scope==='all'||scope==='poets'));
+    // Show a loading state immediately so the person always sees feedback
+    // the instant they type or change a filter, never an empty box.
+    showSearchLoadingState(scope);
 
-    const workWhere=[], workVals=[];
-    if(query){ workWhere.push('(LOWER(c.text) LIKE ? OR LOWER(p.name) LIKE ?)'); workVals.push(`%${query}%`,`%${query}%`); }
-    if(poetId){ workWhere.push('p.id=?'); workVals.push(poetId); }
-    if(century){ workWhere.push('CAST(p.century_id AS TEXT)=?'); workVals.push(century); }
-    const works = scope==='poets'||scope==='verses' ? [] : await dbQuery(`SELECT c.id AS cat_id,c.text AS title,p.id AS poet_id,p.name AS poet_name,p.century_id FROM cat c JOIN poet p ON p.id=c.poet_id ${workWhere.length?'WHERE '+workWhere.join(' AND '):''} ORDER BY c.text LIMIT 30`,workVals);
-    $('worksGridResults').innerHTML = works.map(w=>`<div class="bookmark-unit-card" onclick="navigateTo('view-work-hierarchical',{catId:${Number(w.cat_id)}})"><div class="bookmark-unit-header"><span class="bookmark-type-badge">اثر</span></div><div><div class="bookmark-unit-title">${esc(w.title)}</div><div class="bookmark-unit-sub">${esc(w.poet_name)} • ${esc(w.century_id!=null?`قرن ${faNum(w.century_id)} هـ.ق`:'')}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">مطالعه ←</span></div></div>`).join('');
-    show('worksResultSection', scope==='all'||scope==='works'); empty('worksEmptyMsg', works.length===0 && (scope==='all'||scope==='works'));
+    const wantPoets = scope === 'all' || scope === 'poets';
+    const wantWorks = scope === 'all' || scope === 'works';
+    const wantPoems = scope === 'all' || scope === 'poems';
+    const wantVerses = scope === 'all' || scope === 'verses';
 
-    const verseWhere=['1=1'], verseVals=[];
-    if(query){ verseWhere.push('LOWER(v.text) LIKE ?'); verseVals.push(`%${query}%`); }
-    if(poetId){ verseWhere.push('p.id=?'); verseVals.push(poetId); }
-    if(century){ verseWhere.push('CAST(p.century_id AS TEXT)=?'); verseVals.push(century); }
-    const verses = scope==='poets'||scope==='works' ? [] : await dbQuery(`SELECT v.poem_id,v.vorder,v.position,v.text,po.title,p.name AS poet_name,p.id AS poet_id,p.century_id,c.text AS cat_title FROM verse v JOIN poem po ON po.id=v.poem_id JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE ${verseWhere.join(' AND ')} ORDER BY v.poem_id,v.vorder,v.position LIMIT 50`,verseVals);
-    $('versesGridResults').innerHTML = verses.map(v=>`<div class="bookmark-unit-card" onclick="navigateTo('view-poem-reader',{poemId:${Number(v.poem_id)}})"><div class="bookmark-unit-header"><span class="bookmark-type-badge">بیت</span></div><div><div class="bookmark-unit-title" style="font-weight:400;font-size:13.5px;line-height:1.85;">${esc(v.text)}</div><div class="bookmark-unit-sub">${esc(v.poet_name)} • ${esc(v.poem_title||'')}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">خوانش ←</span></div></div>`).join('');
-    show('versesResultSection', scope==='all'||scope==='verses'); empty('versesEmptyMsg', verses.length===0 && (scope==='all'||scope==='verses'));
+    let poets = [], works = [], poems = [], verses = [];
+    const stale = () => token !== qafRouteToken || searchToken !== qafSearchToken;
+    // Each section renders the moment ITS query finishes (fast ones first);
+    // the slow full-text verse scan no longer holds everything else back.
+    const run = (want, sectionId, gridId, emptyId, type, fetcher, assign) => {
+      if (!want) return Promise.resolve();
+      return fetcher().then(items => {
+        if (stale()) return;
+        assign(items);
+        renderSearchSection({ sectionId, gridId, emptyId, items, type, scopeVisible:true });
+      }).catch(() => {
+        if (stale()) return;
+        const g = $(gridId);
+        if (g && g.querySelector('.qaf-inline-loader')) g.innerHTML = emptyState('خطا در جستجو', 'در اجرای این جستجو مشکلی پیش آمد. دوباره تلاش کنید.');
+      });
+    };
+    await Promise.all([
+      run(wantPoets, 'poetsResultSection','poetsGridResults','poetsEmptyMsg','poet', () => searchPoets(q, century), r => poets = r),
+      run(wantWorks, 'worksResultSection','worksGridResults','worksEmptyMsg','work', () => searchWorks(q, poetId, century), r => works = r),
+      run(wantPoems, 'poemsResultSection','poemsGridResults','poemsEmptyMsg','poem', () => searchPoems(q, poetId, century), r => poems = r)
+    ]);
+    // The database connection runs one query at a time, so the heavy verse
+    // scan starts only after the fast ones, and is skipped entirely if the
+    // person has already typed something newer.
+    if (stale()) return;
+    await run(wantVerses, 'versesResultSection','versesGridResults','versesEmptyMsg','verse', () => searchVerses(q, poetId, century), r => verses = r);
+    if (stale()) return;
+
+    const visibleCounts = [
+      wantPoets ? poets.length : null,
+      wantWorks ? works.length : null,
+      wantPoems ? poems.length : null,
+      wantVerses ? verses.length : null
+    ].filter(v => v !== null);
+    const allEmpty = visibleCounts.length > 0 && visibleCounts.every(c => c === 0);
+    renderOverallSearchEmptyState(allEmpty, !!(nq || poetId || century));
   }
+  function searchResultCard(type,d){let label='',title='',sub='',action='',act='مشاهده';if(type==='poet'){label='سخنور';title=d.name;sub=[d.birthplace||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • ');action=`navigateTo('view-poet-detail',{poetId:${Number(d.id)}})`;}else if(type==='work'){label='اثر';title=d.title;sub=[d.poet_name||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • ');action=`navigateTo('view-work-hierarchical',{catId:${Number(d.cat_id)}})`;}else if(type==='poem'){label='شعر';title=d.title||'بدون عنوان';sub=[d.poet_name||'',d.cat_title||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • ');action=`navigateTo('view-poem-reader',{poemId:${Number(d.poem_id)}})`;act='خوانش';}else{label='مصرع / نثر';title=d.text;sub=[d.poet_name||'',d.title||d.cat_title||''].filter(Boolean).join(' • ');action=`navigateTo('view-poem-reader',{poemId:${Number(d.poem_id)}})`;act='خوانش';}return `<div class="bookmark-unit-card search-result-card" data-category="${type}" onclick="${action}"><div class="bookmark-unit-header"><span class="bookmark-type-badge">${esc(label)}</span></div><div><div class="bookmark-unit-title">${esc(title||'—')}</div><div class="bookmark-unit-sub">${esc(sub)}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">${act} ←</span></div></div>`;}
 
-  function scheduleSearch(){ clearTimeout(state.searchTimer); state.searchTimer=setTimeout(performLiveFilter,250); }
-  function schedulePoetDirectorySearch(){ clearTimeout(state.poetSearchTimer); state.poetSearchTimer=setTimeout(()=>loadPoets(true),250); }
-  function scheduleWorkDirectorySearch(){ clearTimeout(state.workSearchTimer); state.workSearchTimer=setTimeout(()=>loadWorks(true),250); }
+  function scheduleSearch(){ clearTimeout(state.searchTimer); state.searchTimer=setTimeout(()=>performLiveFilter(qafRouteToken),250); }
+  function schedulePoetDirectorySearch(){ clearTimeout(state.poetSearchTimer); state.poetSearchTimer=setTimeout(()=>loadPoets(true,qafRouteToken),250); }
+  function scheduleWorkDirectorySearch(){ clearTimeout(state.workSearchTimer); state.workSearchTimer=setTimeout(()=>loadWorks(true,qafRouteToken),250); }
 
-  function resetSearchPageFilters(){ $('searchResultsInput').value=''; $('scopeSelect').selectedIndex=0; $('poetSelect').selectedIndex=0; $('centurySelect').selectedIndex=0; performLiveFilter(); }
-  function resetPoetDirectoryFilters(){ $('poetSearchInput').value=''; $('poetCenturyFilter').selectedIndex=0; $('poetCityFilter').selectedIndex=0; $('poetSortFilter').selectedIndex=0; loadPoets(true); }
-  function resetWorkDirectoryFilters(){ $('workSearchInput').value=''; $('workPoetFilter').selectedIndex=0; $('workCenturyFilter').selectedIndex=0; $('workSortFilter').selectedIndex=0; loadWorks(true); }
+  function resetSearchPageFilters(){ $('searchResultsInput').value=''; $('scopeSelect').selectedIndex=0; $('poetSelect').selectedIndex=0; $('centurySelect').selectedIndex=0; refreshCustomSelects(); performLiveFilter(qafRouteToken); }
+  function resetPoetDirectoryFilters(){ $('poetSearchInput').value=''; $('poetCenturyFilter').selectedIndex=0; $('poetCityFilter').selectedIndex=0; $('poetSortFilter').selectedIndex=0; refreshCustomSelects(); loadPoets(true,qafRouteToken); }
+  function resetWorkDirectoryFilters(){ $('workSearchInput').value=''; $('workPoetFilter').selectedIndex=0; $('workCenturyFilter').selectedIndex=0; $('workSortFilter').selectedIndex=0; refreshCustomSelects(); loadWorks(true,qafRouteToken); }
 
   function openDrawer(){ $('navDrawer')?.classList.add('is-open'); $('menuToggleBtn')?.classList.add('is-active'); document.body.style.overflow='hidden'; }
   function closeDrawer(){ $('navDrawer')?.classList.remove('is-open'); $('menuToggleBtn')?.classList.remove('is-active'); document.body.style.overflow=''; }
-  function openGlobalSearch(){ $('searchOverlay')?.classList.add('is-open'); $('searchToggleBtn')?.classList.add('is-active'); document.body.style.overflow='hidden'; setTimeout(()=>$('globalSearchInput')?.focus(),150); }
-  function closeGlobalSearch(){ $('searchOverlay')?.classList.remove('is-open'); $('searchToggleBtn')?.classList.remove('is-active'); document.body.style.overflow=''; }
+  function openGlobalSearch(){ $('searchOverlay')?.classList.add('is-open'); $('searchToggleBtn')?.classList.add('is-active'); document.body.style.overflow='hidden'; document.documentElement.style.overflow='hidden'; setTimeout(()=>{$('globalSearchInput')?.focus();$('globalSearchInput')?.select?.();},180); }
+  function closeGlobalSearch(){ $('searchOverlay')?.classList.remove('is-open'); $('searchToggleBtn')?.classList.remove('is-active'); document.body.style.overflow=''; document.documentElement.style.overflow=''; }
   function executeGlobalSearch(){
     const q=$('globalSearchInput')?.value.trim()||'';
     const scope=$('globalScopeFilter')?.value||'all';
     const poetId=$('globalPoetFilter')?.value||'';
     const century=$('globalCenturyFilter')?.value||'';
     closeGlobalSearch();
-    navigateTo('view-search',{query:q});
-    populateGlobalFilters().then(()=>{
-      if($('scopeSelect')) $('scopeSelect').value=scope;
-      if($('poetSelect')) $('poetSelect').value=poetId;
-      if($('centurySelect')) $('centurySelect').value=century;
-      performLiveFilter();
-    });
+    // navigateTo's view-search branch applies these params to the search
+    // page's own filter fields and runs the search immediately — no need
+    // to wait for the filter dropdown lists to finish loading first.
+    navigateTo('view-search',{query:q,scope,poetId,century});
   }
   function resetGlobalSearchFilters(){ if($('globalSearchInput')) $('globalSearchInput').value=''; if($('globalScopeFilter')) $('globalScopeFilter').value='all'; if($('globalPoetFilter')) $('globalPoetFilter').value=''; if($('globalCenturyFilter')) $('globalCenturyFilter').value=''; }
 
-  function initTheme(){
-    const saved=localStorage.getItem('theme');
-    if(saved) document.documentElement.setAttribute('data-theme',saved);
-    else if(window.matchMedia?.('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme','dark');
+  function applyTheme(theme){
+    const root=document.documentElement;
+    const target=theme==='dark'?'dark':'light';
+    root.setAttribute('data-theme',target);
+    try{localStorage.setItem('theme',target);}catch{}
+    document.body?.style.removeProperty('color');
+    document.body?.style.removeProperty('background-color');
+    document.querySelectorAll('.qaf-custom-select').forEach(btn=>btn.blur?.());
+    refreshCustomSelects();
   }
-  function toggleTheme(){ const current=document.documentElement.getAttribute('data-theme'); const target=current==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',target); localStorage.setItem('theme',target); }
+  function initTheme(){
+    let saved=''; try{saved=localStorage.getItem('theme')||'';}catch{}
+    const theme=saved==='dark'||saved==='light'?saved:(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light');
+    applyTheme(theme);
+  }
+  function toggleTheme(){
+    const current=document.documentElement.getAttribute('data-theme')||'light';
+    applyTheme(current==='dark'?'light':'dark');
+  }
 
   function toggleZenMode(enable){ document.body.classList.toggle('zen-active',enable); $('zenToggleBtn')?.classList.toggle('is-active',enable); }
-  async function copySingleVerse(btn){ const block=btn.closest('.verse-block'); const text=Array.from(block.querySelectorAll('.hemistich-line')).map(x=>x.innerText.trim()).join(' / '); try{await navigator.clipboard.writeText(text);}catch{} const s=btn.querySelector('span'); if(s){s.innerText='کپی شد';setTimeout(()=>s.innerText='کپی',1200);} }
+  async function copySingleVerse(btn){ const block=btn.closest('.verse-block'); const text=Array.from(block.querySelectorAll('.hemistich-line')).map(x=>x.innerText.trim()).join(' / '); try{await navigator.clipboard.writeText(text);}catch{} btn.innerHTML=ICON_SVG_CHECK; btn.classList.add('is-active'); setTimeout(()=>{btn.innerHTML=ICON_SVG_COPY; btn.classList.remove('is-active');},1200); }
   async function copyFullPoem(btn){ const title=$('poemMainHeading')?.innerText||''; const author=$('poemSubAuthor')?.innerText||''; const verses=Array.from(document.querySelectorAll('#versesContainer .verse-block')).map(b=>Array.from(b.querySelectorAll('.hemistich-line')).map(x=>x.innerText.trim()).join('\n')).join('\n\n'); try{await navigator.clipboard.writeText(`«${title}»\n${author}\n\n${verses}`);}catch{} btn.classList.add('is-active'); setTimeout(()=>btn.classList.remove('is-active'),1200); }
 
   function getBookmarks(type){
     try{return JSON.parse(localStorage.getItem(`qaf_bookmarked_${type}s`)||'[]');}catch{return[];}
   }
-  function saveBookmarks(type, arr){ localStorage.setItem(`qaf_bookmarked_${type}s`,JSON.stringify(arr)); }
+  function saveBookmarks(type, arr){ try{localStorage.setItem(`qaf_bookmarked_${type}s`,JSON.stringify(arr));}catch{} }
 
   function togglePoemBookmark(btn){
     if(!state.currentPoem) return;
@@ -3625,8 +4050,8 @@
   }
   function toggleVerseBookmark(btn,id){
     const block=btn.closest('.verse-block'); const arr=getBookmarks('verse'); const idx=arr.findIndex(x=>String(x.id??x)===String(id));
-    if(idx>=0){arr.splice(idx,1);block.classList.remove('is-bookmarked');btn.classList.remove('is-active');btn.querySelector('span').innerText='نشان';}
-    else{arr.push({id:String(id),poemId:state.currentPoem?.poem_id});block.classList.add('is-bookmarked');btn.classList.add('is-active');btn.querySelector('span').innerText='نشان شد';}
+    if(idx>=0){arr.splice(idx,1);block.classList.remove('is-bookmarked');btn.classList.remove('is-active');}
+    else{arr.push({id:String(id),poemId:state.currentPoem?.poem_id,vorder:Number(String(id).split(':')[1]||0),position:Number(String(id).split(':')[2]||0)});block.classList.add('is-bookmarked');btn.classList.add('is-active');}
     saveBookmarks('verse',arr);
   }
   function togglePoetBookmark(btn){
@@ -3640,40 +4065,22 @@
   function toggleWorkBookmarkFromButton(btn){
     if(!state.currentCat)return;
     const arr=getBookmarks('work'); const id=String(state.currentCat.id); const idx=arr.findIndex(x=>String(x.id??x)===id);
-    if(idx>=0){arr.splice(idx,1);btn.classList.remove('is-bookmarked');} else {arr.push({id:Number(id),title:state.currentCat.text,poetId:state.currentCat.poet_id});btn.classList.add('is-bookmarked');}
+    if(idx>=0){arr.splice(idx,1);btn.classList.remove('is-bookmarked');} else {arr.push({id:Number(id),title:state.currentCat.text,poetId:state.currentCat.poet_id ?? state.currentCat.poetId});btn.classList.add('is-bookmarked');}
     saveBookmarks('work',arr); renderBookmarks();
   }
 
-  function renderBookmarks(){
-    const container=$('bookmarksUnitsList'); if(!container)return;
-    const poets=getBookmarks('poet'), works=getBookmarks('work'), verses=getBookmarks('verse'), poems=getBookmarks('poem');
-    if(!poets.length&&!works.length&&!verses.length&&!poems.length){container.innerHTML=emptyState('هنوز نشانی ذخیره نکرده‌اید','سخنوران، آثار یا ابیات مورد علاقه خود را نشان‌گذاری کنید.');return;}
-    let out='';
-    poets.forEach(x=>out+=bookmarkCard('poet',x.id,x.name,'سخنور',()=>navigateTo('view-poet-detail',{poetId:x.id})));
-    works.forEach(x=>out+=bookmarkCard('work',x.id,x.title,'اثر',()=>navigateTo('view-work-hierarchical',{catId:x.id})));
-    poems.forEach(x=>out+=bookmarkCard('poem',x.id,x.title,'شعر',()=>navigateTo('view-poem-reader',{poemId:x.id})));
-    verses.forEach(x=>out+=bookmarkCard('verse',x.id,'بیت نشان‌شده','بیت',()=>navigateTo('view-poem-reader',{poemId:x.poemId})));
-    container.innerHTML=out;
-  }
-  function bookmarkCard(type,id,title,badge,onClick){
-    const safeId=esc(String(id));
-    let action='';
-    if(type==='poet') action=`navigateTo('view-poet-detail',{poetId:${Number(id)}})`;
-    else if(type==='work') action=`navigateTo('view-work-hierarchical',{catId:${Number(id)}})`;
-    else if(type==='poem') action=`navigateTo('view-poem-reader',{poemId:${Number(id)}})`;
-    else action=`navigateTo('view-poem-reader',{poemId:${Number(getBookmarks('verse').find(x=>String(x.id??x)===String(id))?.poemId || 0)}})`;
-    return `<div class="bookmark-unit-card" data-category="${esc(type)}"><div class="bookmark-unit-header"><span class="bookmark-type-badge">${esc(badge)}</span><button type="button" class="remove-bookmark-btn" onclick="event.stopPropagation();removeBookmarkUnit(this,'${safeId}','${esc(type)}')">حذف</button></div><div onclick="${action}"><div class="bookmark-unit-title">${esc(title)}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">باز کردن ←</span></div></div>`;
-  }
-  function removeBookmarkUnit(btn,id,type){ const arr=getBookmarks(type).filter(x=>String(x.id??x)!==String(id)); saveBookmarks(type,arr); renderBookmarks(); }
+  async function renderBookmarks(){const c=$('bookmarksUnitsList');if(!c)return;const renderToken=qafRouteToken;const poets=getBookmarks('poet'),works=getBookmarks('work'),poems=getBookmarks('poem'),verses=getBookmarks('verse');if(!poets.length&&!works.length&&!poems.length&&!verses.length){c.innerHTML=emptyState('هنوز نشانی ذخیره نکرده‌اید','سخنوران، آثار، شعرها یا ابیات مورد علاقه خود را نشان‌گذاری کنید.');return;}if(!state.dbReady){c.innerHTML=emptyState('در حال آماده‌سازی','نشان‌های شما پس از آماده‌شدن پایگاه داده نمایش داده می‌شوند.');return;}let out='';for(const x of poets){const d=(await dbQuery('SELECT id,name,century_id,birthplace FROM poet WHERE id=? LIMIT 1',[Number(x.id)]))[0];if(d)out+=bookmarkResultCard('poet',d);}for(const x of works){const d=(await dbQuery('SELECT c.id AS cat_id,c.text AS title,p.name AS poet_name,p.century_id FROM cat c JOIN poet p ON p.id=c.poet_id WHERE c.id=? LIMIT 1',[Number(x.id)]))[0];if(d)out+=bookmarkResultCard('work',d);}for(const x of poems){const d=(await dbQuery('SELECT po.id AS poem_id,po.title,p.name AS poet_name,c.text AS cat_title,p.century_id FROM poem po JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE po.id=? LIMIT 1',[Number(x.id)]))[0];if(d)out+=bookmarkResultCard('poem',d);}for(const x of verses){const d=(await dbQuery('SELECT v.poem_id,v.vorder,v.position,v.text,po.title,p.name AS poet_name,c.text AS cat_title FROM verse v JOIN poem po ON po.id=v.poem_id JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE v.poem_id=? AND v.vorder=? AND v.position=? LIMIT 1',[Number(x.poemId),Number(x.vorder||0),Number(x.position||0)]))[0]||(await dbQuery('SELECT v.poem_id,v.text,po.title,p.name AS poet_name,c.text AS cat_title FROM verse v JOIN poem po ON po.id=v.poem_id JOIN cat c ON c.id=po.cat_id JOIN poet p ON p.id=c.poet_id WHERE v.poem_id=? LIMIT 1',[Number(x.poemId)]))[0];if(d){d.bookmarkId=x.id;out+=bookmarkResultCard('verse',d);}}if(renderToken!==qafRouteToken)return;c.innerHTML=out||emptyState('نشان‌های ذخیره‌شده در دسترس نیستند','داده مرتبط با این نشان‌ها در پایگاه داده پیدا نشد.');}
+  function bookmarkResultCard(type,d){const id=type==='poet'?d.id:type==='work'?d.cat_id:type==='poem'?d.poem_id:d.bookmarkId,title=type==='poet'?d.name:type==='work'?d.title:type==='poem'?d.title:d.text,sub=type==='poet'?[d.birthplace||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • '):type==='work'?[d.poet_name||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • '):type==='poem'?[d.poet_name||'',d.cat_title||'',d.century_id!=null?`قرن ${faNum(d.century_id)} هـ.ق`:'دوره معاصر و سایر'].filter(Boolean).join(' • '):[d.poet_name||'',d.title||d.cat_title||''].filter(Boolean).join(' • '),label=type==='poet'?'سخنور':type==='work'?'اثر':type==='poem'?'شعر':'مصرع / نثر',action=type==='poet'?`navigateTo('view-poet-detail',{poetId:${Number(id)}})`:type==='work'?`navigateTo('view-work-hierarchical',{catId:${Number(id)}})`:`navigateTo('view-poem-reader',{poemId:${Number(type==='verse'?d.poem_id:id)}})`,act=type==='poem'||type==='verse'?'خوانش':'مشاهده';return `<div class="bookmark-unit-card search-result-card" data-category="${type}" onclick="${action}"><div class="bookmark-unit-header"><span class="bookmark-type-badge">${label}</span><button type="button" class="remove-bookmark-btn" aria-label="حذف نشان" onclick="event.stopPropagation();removeBookmarkUnit(this,'${esc(String(id))}','${type}')">حذف</button></div><div><div class="bookmark-unit-title">${esc(title||'—')}</div><div class="bookmark-unit-sub">${esc(sub)}</div></div><div class="bookmark-unit-footer"><span class="bookmark-action-link">${act} ←</span></div></div>`;}
+  function removeBookmarkUnit(btn,id,type){const arr=getBookmarks(type).filter(x=>String(x.id??x)!==String(id));saveBookmarks(type,arr);renderBookmarks();}
 
   function recordLastReading(poem, grouped){
     if(!poem)return;
     const first=grouped?.[0]?.items?.map(v=>v.text).join(' / ')||'';
     const data={poemId:poem.poem_id,title:poem.title,author:poem.poet_name,workTitle:poem.cat_title,preview:first};
-    localStorage.setItem('qaf_last_read_poem',JSON.stringify(data));
+    try{localStorage.setItem('qaf_last_read_poem',JSON.stringify(data));}catch{}
     let history=[]; try{history=JSON.parse(localStorage.getItem('qaf_reading_history')||'[]');}catch{}
     history=history.filter(x=>String(x.poemId)!==String(poem.poem_id)); history.unshift(data);
-    localStorage.setItem('qaf_reading_history',JSON.stringify(history.slice(0,50)));
+    try{localStorage.setItem('qaf_reading_history',JSON.stringify(history.slice(0,50)));}catch{}
   }
   function renderRecentReading(){
     const c=$('recentReadingContent'); if(!c)return;
@@ -3689,42 +4096,11 @@
   function clearReadingHistory(){localStorage.removeItem('qaf_reading_history');localStorage.removeItem('qaf_last_read_poem');renderReadingHistory();renderRecentReading();}
   function filterByCollection(category,btn){document.querySelectorAll('.collection-chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('#bookmarksUnitsList .bookmark-unit-card').forEach(c=>c.style.display=(category==='all'||c.dataset.category===category)?'flex':'none');}
 
-  function openCreateListModal(){ $('createListModal')?.classList.add('open'); setTimeout(()=>$('newListName')?.focus(),80); }
-  function closeCreateListModal(){ $('createListModal')?.classList.remove('open'); if($('newListName'))$('newListName').value=''; }
-  function restoreCustomLists(){
-    const row=$('categoriesScrollRow');
-    const create=row?.querySelector('.create-list-action-chip');
-    if(!row||!create)return;
-    state.customLists.forEach(item=>{
-      const b=document.createElement('button');
-      b.type='button'; b.className='collection-chip'; b.dataset.category='all';
-      b.innerHTML=`<span>${esc(item.name)}</span>`;
-      b.onclick=()=>filterByCollection('all',b);
-      row.insertBefore(b,create);
-    });
-  }
-
-  function saveNewList(){
-    const name=$('newListName')?.value.trim(); if(!name)return;
-    state.customLists.push({id:'custom_'+Date.now(),name}); localStorage.setItem('qaf_custom_lists',JSON.stringify(state.customLists));
-    const row=$('categoriesScrollRow'); const create=row?.querySelector('.create-list-action-chip');
-    if(row&&create){const b=document.createElement('button');b.type='button';b.className='collection-chip';b.dataset.category='all';b.innerHTML=`<span>${esc(name)}</span>`;b.onclick=()=>filterByCollection('all',b);row.insertBefore(b,create);}
-    closeCreateListModal();
-  }
-
-  function exportDataBackup(){
-    const data={app:'QAF_LITERARY_ARCHIVE',version:2,timestamp:new Date().toISOString(),poets:getBookmarks('poet'),works:getBookmarks('work'),poems:getBookmarks('poem'),verses:getBookmarks('verse'),history:JSON.parse(localStorage.getItem('qaf_reading_history')||'[]'),lastRead:JSON.parse(localStorage.getItem('qaf_last_read_poem')||'null'),lists:state.customLists};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=`qaf-backup-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-  }
-  function importDataBackup(event){
-    const file=event.target.files?.[0]; if(!file)return; const reader=new FileReader();
-    reader.onload=()=>{try{const d=JSON.parse(reader.result);if(d.app!=='QAF_LITERARY_ARCHIVE')throw new Error('فایل پشتیبان قاف نیست.');['poets','works','poems','verses'].forEach(k=>{if(Array.isArray(d[k]))localStorage.setItem(`qaf_bookmarked_${k}`,JSON.stringify(d[k]));});if(Array.isArray(d.history))localStorage.setItem('qaf_reading_history',JSON.stringify(d.history));if(d.lastRead)localStorage.setItem('qaf_last_read_poem',JSON.stringify(d.lastRead));if(Array.isArray(d.lists)){state.customLists=d.lists;localStorage.setItem('qaf_custom_lists',JSON.stringify(d.lists));}renderBookmarks();renderReadingHistory();renderRecentReading();alert('پشتیبان با موفقیت بازیابی شد.');}catch(e){alert(e.message||'بازیابی پشتیبان انجام نشد.');}};
-    reader.readAsText(file); event.target.value='';
-  }
+  async function copyWalletAddress(btn,key){const el=document.querySelector(`[data-wallet="${key}"]`),text=el?.innerText?.trim()||"";if(!text)return;let ok=false;try{const cap=window.Capacitor?.Plugins?.Clipboard;if(cap?.write){await cap.write({string:text});ok=true;}}catch{}if(!ok){try{await navigator.clipboard.writeText(text);ok=true;}catch{}}if(!ok){try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);ok=document.execCommand('copy');document.body.removeChild(ta);}catch{}}btn.innerText=ok?"کپی شد":"کپی نشد";setTimeout(()=>btn.innerText="کپی",1400);}
 
   function switchMainTab(tabId,btn){document.querySelectorAll('.workspace-tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));btn?.classList.add('active');$(tabId==='bookmarks'?'tabPanelBookmarks':'tabPanelHistory')?.classList.add('active');}
 
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.body.classList.contains('zen-active'))toggleZenMode(false);else{closeGlobalSearch();closeDrawer();closeCreateListModal();}}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.body.classList.contains('zen-active'))toggleZenMode(false);else{closeGlobalSearch();closeDrawer();}}});
 
   window.navigateTo=navigateTo;
   window.openDrawer=openDrawer; window.closeDrawer=closeDrawer; window.openGlobalSearch=openGlobalSearch; window.closeGlobalSearch=closeGlobalSearch;
@@ -3738,166 +4114,47 @@
   window.toggleWorkBookmarkFromButton=toggleWorkBookmarkFromButton; window.openCurrentPoemAuthor=openCurrentPoemAuthor; window.openCurrentWorkAuthor=openCurrentWorkAuthor;
   window.renderBookmarks=renderBookmarks; window.renderReadingHistory=renderReadingHistory; window.renderRecentReading=renderRecentReading;
   window.filterByCollection=filterByCollection; window.removeBookmarkUnit=removeBookmarkUnit; window.clearReadingHistory=clearReadingHistory;
-  window.openCreateListModal=openCreateListModal; window.closeCreateListModal=closeCreateListModal; window.saveNewList=saveNewList;
-  window.exportDataBackup=exportDataBackup; window.importDataBackup=importDataBackup; window.switchMainTab=switchMainTab;
-  window.initTheme=initTheme; window.toggleTheme=toggleTheme;
+  window.populateCenturyOptions=populateCenturyOptions; window.switchMainTab=switchMainTab;
+  window.resetSearchPageFilters=resetSearchPageFilters; window.initTheme=initTheme; window.toggleTheme=toggleTheme; window.copyWalletAddress=copyWalletAddress;
 
-  document.addEventListener('DOMContentLoaded', async ()=>{
-    initTheme();
-    try { await initDatabase(); }
-    catch(e){ setDbError(e); }
-    renderBookmarks(); renderReadingHistory(); renderRecentReading();
+  function hideAppLoadingScreen(){
+    const el = $('appLoadingScreen');
+    if (el) el.classList.add('is-hidden');
+  }
+
+  function applyRouteFromHistory(){const r=history.state?.qafRoute;if(r?.view)navigateTo(r.view,r.params||{},{fromHistory:true});else navigateTo('view-home',{}, {fromHistory:true});}
+  window.addEventListener('popstate',applyRouteFromHistory);
+  document.addEventListener('DOMContentLoaded',async()=>{
+    initTheme();refreshCustomSelects();
+    if(!history.state?.qafRoute)history.replaceState({qafRoute:{view:'view-home',params:{}},qafDepth:0},'',location.href.split('#')[0]+'#view-home');
+    let qafBackBusy=false;
+    const handleBack=()=>{
+      // Guard against the hardware/gesture back event firing more than once
+      // for a single physical press (this happens on some Android builds
+      // where both the Capacitor App plugin and the legacy Cordova
+      // `backbutton` event are dispatched together). Without this guard the
+      // second, near-simultaneous call would run against a DOM/history
+      // state that the first call hasn't finished updating yet, causing the
+      // "skips two pages" / "jumps home" / "jumps far back from zen mode"
+      // symptoms.
+      if(qafBackBusy) return true;
+      qafBackBusy=true;
+      setTimeout(()=>{qafBackBusy=false;},260);
+      if(qafSelectMenu?.classList.contains('is-open')){closeCustomSelect();return true;}
+      if($('searchOverlay')?.classList.contains('is-open')){closeGlobalSearch();return true;}
+      if(document.body.classList.contains('zen-active')){toggleZenMode(false);return true;}
+      if($('navDrawer')?.classList.contains('is-open')){closeDrawer();return true;}
+      if(history.state?.qafDepth>0){history.back();return true;}
+      return false;
+    };
+    const App=window.Capacitor?.Plugins?.App;
+    if(App?.addListener){App.addListener('backButton',()=>{if(!handleBack())App.exitApp?.();});}
+    window.__qafHandleBack=handleBack;
+    try{await initDatabase();}catch(e){setDbError(e);}
+    renderBookmarks();renderReadingHistory();renderRecentReading();applyRouteFromHistory();hideAppLoadingScreen();
   });
 })();
   </script>
  
-<script>
-/*
- * QAF SQLite Diagnostic
- * Temporary diagnostic for @capacitor-community/sqlite 8.1.1
- */
-(async function qafSQLiteDiagnostic() {
-    const sqlite = window.Capacitor?.Plugins?.CapacitorSQLite;
-
-    const log = (step, value) => {
-        try {
-            const output =
-                typeof value === 'string'
-                    ? value
-                    : JSON.stringify(value, null, 2);
-
-            console.log(`QAF SQLITE DIAGNOSTIC [${step}]: ${output}`);
-        } catch (e) {
-            console.log(`QAF SQLITE DIAGNOSTIC [${step}]:`, value);
-        }
-    };
-
-    log('START', 'Diagnostic started');
-
-    if (!sqlite) {
-        log('PLUGIN', 'CapacitorSQLite NOT AVAILABLE');
-        return;
-    }
-
-    log('PLUGIN', 'CapacitorSQLite available');
-
-    // --------------------------------------------------------
-    // 1. Check database existence
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.isDBExists({
-            database: 'qaf'
-        });
-        log('isDBExists', result);
-    } catch (e) {
-        log('isDBExists ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 2. Check connection BEFORE createConnection
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.isConnection({
-            database: 'qaf',
-            readonly: false
-        });
-        log('isConnection BEFORE', result);
-    } catch (e) {
-        log('isConnection BEFORE ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 3. createConnection
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.createConnection({
-            database: 'qaf',
-            version: 1,
-            encrypted: false,
-            mode: 'no-encryption',
-            readonly: false
-        });
-
-        log('createConnection', result);
-    } catch (e) {
-        log('createConnection ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 4. Check connection AFTER createConnection
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.isConnection({
-            database: 'qaf',
-            readonly: false
-        });
-
-        log('isConnection AFTER', result);
-    } catch (e) {
-        log('isConnection AFTER ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 5. open
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.open({
-            database: 'qaf',
-            readonly: false
-        });
-
-        log('open', result);
-    } catch (e) {
-        log('open ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 6. Check actual DB open state
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.isDBOpen({
-            database: 'qaf',
-            readonly: false
-        });
-
-        log('isDBOpen', result);
-    } catch (e) {
-        log('isDBOpen ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 7. Get tables
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.getTableList({
-            database: 'qaf',
-            readonly: true
-        });
-
-        log('getTableList', result);
-    } catch (e) {
-        log('getTableList ERROR', e);
-    }
-
-    // --------------------------------------------------------
-    // 8. Test poet table
-    // --------------------------------------------------------
-    try {
-        const result = await sqlite.query({
-            database: 'qaf',
-            statement: 'SELECT 1 FROM poet LIMIT 1',
-            values: [],
-            readonly: true
-        });
-
-        log('QUERY poet', result);
-    } catch (e) {
-        log('QUERY poet ERROR', e);
-    }
-
-    log('END', 'Diagnostic finished');
-})();
-</script>
-
 </body>
 </html>

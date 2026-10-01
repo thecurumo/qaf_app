@@ -1,21 +1,30 @@
 {
-  "name": "capacitor-app",
+  "name": "qaf",
   "version": "1.0.0",
-  "description": "",
+  "description": "Qaf: a fully offline archive of Persian literature",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "thecurumo",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@capacitor-community/sqlite": "^8.1.1",
     "@capacitor/android": "^8.5.1",
-    "@capacitor/core": "^8.5.1"
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/filesystem": "^8.1.3",
+    "@capacitor/share": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thecurumo/qaf_app.git"
   }
 }
