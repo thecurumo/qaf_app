@@ -31,7 +31,7 @@ Version 1.1.0 &nbsp;|&nbsp; MIT License &nbsp;|&nbsp; Built with Capacitor
   <tr>
     <td align="center" width="33%">
       <img src="images/Qaf-Dark-04-Search.png" alt="جستجوی پیشرفته" width="100%"/>
-      <br/><b>جست‌وجوی پیشرفته</b>
+      <br/><b>جست‌وجو</b>
     </td>
     <td align="center" width="33%">
       <img src="images/Qaf-Dark-05-Works.png" alt="گنجینه آثار و دیوان‌ها" width="100%"/>
@@ -39,7 +39,7 @@ Version 1.1.0 &nbsp;|&nbsp; MIT License &nbsp;|&nbsp; Built with Capacitor
     </td>
     <td align="center" width="33%">
       <img src="images/Qaf-Dark-06-Archive.png" alt="بایگانی و نشان‌ها" width="100%"/>
-      <br/><b>بایگانی و نشان‌ها</b>
+      <br/><b>  نشان‌ها</b>
     </td>
   </tr>
 </table>
