@@ -1,6 +1,7 @@
 package com.thecurumo.qaf;
 
 import android.os.Bundle;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
 
@@ -12,6 +13,12 @@ public class MainActivity extends BridgeActivity {
 
         registerPlugin(DatabaseSetupPlugin.class);
         super.onCreate(savedInstanceState);
+
+        // خاموش‌کردن ActionBar، صرف‌نظر از اینکه کدام تم اعمال شده باشد
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
 
         // مخفی‌کردن اسکرول‌بار native خودِ WebView — این چیزیه که CSS
         // نمی‌تونه کنترلش کنه، چون مربوط به خودِ کامپوننت اندرویدی WebView است
