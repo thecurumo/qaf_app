@@ -21,7 +21,7 @@ Version 1.1.0 &nbsp;|&nbsp; MIT License &nbsp;|&nbsp; Built with Capacitor
     </td>
     <td align="center" width="33%">
       <img src="images/Qaf-Dark-02-Poets.png" alt="فهرست سخنوران" width="100%"/>
-      <br/><b>فهرست سخنوران</b>
+      <br/><b>سخنوران</b>
     </td>
     <td align="center" width="33%">
       <img src="images/Qaf-Dark-03-Reader.png" alt="خوانش اثر و اشعار" width="100%"/>
