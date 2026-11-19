@@ -1,21 +1,121 @@
-MIT License
-
+QAF SOURCE-AVAILABLE LICENSE
+Version 1.0
 Copyright (c) 2026 thecurumo
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+IMPORTANT: This is a custom, restrictive, source-available license. It is
+not an OSI-approved Open Source license.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. DEFINITIONS
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+"Licensor" means the copyright holder identified above.
+
+"Qaf Materials" means the original source code and other original materials
+in this repository that are owned by the Licensor and expressly made subject
+to this License.
+
+"Third-Party Materials" means material not owned by the Licensor, including
+literary texts and database content derived from Ganjoor, fonts, libraries,
+frameworks, plugins, and other third-party assets. Third-Party Materials are
+not licensed under this License and remain subject to their own licenses,
+permissions, and terms.
+
+"Contribution" means a change intentionally submitted to the Qaf repository
+for inclusion in the project, including a pull request.
+
+2. LIMITED PERMISSIONS
+
+Subject to this License, the Licensor grants you a limited, revocable,
+non-exclusive, non-transferable permission to:
+
+a. access, read, and inspect the Qaf Materials made publicly available in
+   this repository;
+
+b. download and make local copies of the Qaf Materials solely for evaluation,
+   study, and preparation of a Contribution;
+
+c. create or use a GitHub fork solely to prepare and submit a Contribution
+   to the official Qaf repository; and
+
+d. install and use unmodified official Qaf releases obtained from the
+   Licensor's official distribution channels for personal, non-commercial
+   purposes.
+
+These permissions do not grant any ownership interest in the Qaf Materials.
+
+3. RESTRICTIONS
+
+Unless the Licensor gives you prior written permission, you may not:
+
+a. use the Qaf Materials, or any substantial portion of them, in another
+   product, project, application, service, or repository;
+
+b. publish, distribute, sublicense, sell, rent, or otherwise make available
+   copies of the Qaf Materials;
+
+c. publish, distribute, or make available a modified, adapted, or derivative
+   version of Qaf, including a separately branded or renamed version;
+
+d. use the Qaf Materials for commercial purposes, including offering a
+   product or service based on them;
+
+e. remove or alter copyright, authorship, or proprietary notices; or
+
+f. imply that a fork, derivative project, or independently released version
+   is the official Qaf project or is endorsed by the Licensor.
+
+A GitHub fork permitted under Section 2(c) is only for contribution workflow.
+It does not authorize independent publication, distribution, deployment, or
+commercial use of the fork or its contents.
+
+4. CONTRIBUTIONS
+
+Submitting a Contribution does not automatically transfer copyright ownership
+to the Licensor. Contributors retain ownership of their original work, subject
+to the rights granted under the project's Contributor License Agreement
+(CLA), if and when accepted.
+
+By submitting a Contribution, you agree that it may be publicly displayed,
+reviewed, modified, and discussed as part of the contribution process. The
+Licensor may require acceptance of the project's CLA before reviewing or
+merging a Contribution.
+
+5. THIRD-PARTY MATERIALS
+
+This License applies only to Qaf Materials owned by the Licensor. It does not
+replace, override, or restrict any applicable license or permission for
+Third-Party Materials. You are responsible for identifying and complying with
+the terms that apply to those materials.
+
+In particular, the Ganjoor-derived literary data, the Arad typeface, Capacitor,
+the Capacitor Community SQLite plugin, and other dependencies or assets remain
+subject to their respective terms. Nothing in this License grants rights that
+the Licensor does not own.
+
+6. NO WARRANTY
+
+THE QAF MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. TO THE MAXIMUM EXTENT
+PERMITTED BY APPLICABLE LAW, THE LICENSOR SHALL NOT BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM THE QAF MATERIALS OR THEIR USE.
+
+7. TERMINATION
+
+The permissions granted under this License terminate automatically if you
+materially violate its terms. Upon termination, you must stop the activities
+that are no longer authorized. Sections that by their nature should survive
+termination will continue to apply.
+
+8. PERMISSION REQUESTS
+
+To request permission for any use not expressly allowed by this License,
+contact the Licensor through the contact method identified in the official
+Qaf repository.
+
+9. GOVERNING LAW
+
+This License is subject to applicable law. No governing jurisdiction is
+specified here. If a governing-law clause is needed, it should be added after
+obtaining advice appropriate to the Licensor's jurisdiction.
+
+END OF LICENSE
