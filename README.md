@@ -8,7 +8,7 @@
 
 [English](#english) &nbsp;|&nbsp; [فارسی](#persian)
 
-Version 1.1.0 &nbsp;|&nbsp; MIT License &nbsp;|&nbsp; Built with Capacitor
+Version 1.1.0 &nbsp;|&nbsp; Qaf Source-Available License &nbsp;|&nbsp; Built with Capacitor
 
 <br/>
 
@@ -154,7 +154,7 @@ Qaf is free and will remain free. Optional ways to support its development are l
 
 ### License
 
-The source code of Qaf is released under the [MIT License](LICENSE). This license applies to the application code only. The literary data, fonts and other third-party assets are governed by their respective terms, as described above.
+The original source code and project-owned assets of Qaf are made available for viewing and contribution under the [Qaf Source-Available License](LICENSE). This is not an open-source license: reuse, redistribution, publication of modified versions and commercial use require prior written permission from the copyright holder. The license does not cover literary data, fonts, libraries or other third-party materials, which remain governed by their respective terms. Previous releases or copies already distributed under the MIT License remain subject to the MIT License that accompanied them.
 
 ---
 
@@ -274,6 +274,6 @@ cd android
 
 ### مجوز
 
-کد منبع قاف تحت [مجوز MIT](LICENSE) منتشر شده است. این مجوز فقط شامل کد برنامه است. داده‌های ادبی، فونت‌ها و سایر منابع شخص ثالث تابع شرایط مربوط به خود هستند، همان‌طور که در بالا توضیح داده شد.
+کد منبع اصلی و دارایی‌های متعلق به پروژهٔ قاف، برای مشاهده و مشارکت توسعه‌دهندگان تحت [مجوز اختصاصی قابل‌مشاهدهٔ قاف](LICENSE) ارائه می‌شوند. این مجوز، متن‌باز به معنای رسمی نیست؛ استفادهٔ مجدد، بازتوزیع، انتشار نسخه‌های تغییر‌یافته و استفادهٔ تجاری از آن‌ها بدون اجازهٔ کتبی قبلی دارندهٔ حقوق مجاز نیست. این مجوز شامل داده‌های ادبی، فونت‌ها، کتابخانه‌ها و سایر منابع شخص ثالث نمی‌شود و هر یک تابع شرایط مجوز خود هستند. نسخه‌ها یا کپی‌هایی که پیش‌تر تحت مجوز MIT منتشر شده‌اند، همچنان تابع همان مجوز MIT همراه آن نسخه‌ها هستند.
 
 </div>
